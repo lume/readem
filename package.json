@@ -1,0 +1,44 @@
+{
+  "name": "readem",
+  "version": "0.0.0",
+  "description": "Read the !@#$%^& docs!",
+  "main": "read'em.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo '<script>' > index.html && browserify src/js/app.js -t 6to5ify -t famousify -t cssify >> index.html && echo '</script>' >> index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:trusktr/readem.git"
+  },
+  "keywords": [
+    "rtfm",
+    "docs",
+    "doc generator",
+    "documentation generator",
+    "docgen",
+    "dox",
+    "documentation"
+  ],
+  "authors": [
+    "Joseph Orbegoso Pea <joe@trusktr.io>"
+  ],
+  "license": "MPL v2.0",
+  "bugs": {
+    "url": "https://github.com/trusktr/readem/issues"
+  },
+  "homepage": "https://github.com/trusktr/readem",
+  "dependencies": {
+    "6to5ify": "^4.0.0",
+    "army-knife": "^0.2.0",
+    "at-at": "^0.0.4",
+    "browserify": "^8.1.1",
+    "commander": "^2.6.0",
+    "cssify": "^0.6.0",
+    "dox": "^0.6.1",
+    "famous": "^0.3.4",
+    "famousify": "^0.1.5",
+    "infamous": "^0.0.37",
+    "serve": "^1.4.0"
+  }
+}
