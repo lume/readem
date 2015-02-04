@@ -137,6 +137,7 @@ function serve(dir, port) {
  * @param {Function} callback Called when docs are done being made.
  */
 function genDocs(dox, options, callback) {
+    var whenFinished = callAfter(dox.length, callback)
 
     // make the output directory.
     mkdirp.sync(options.dest)
@@ -159,7 +160,7 @@ function genDocs(dox, options, callback) {
             dox.forEach(function(dox) {
                 var output = ejs.render(data.toString(), {
                     dox: dox,
-                    app: app // place app js in filesystem instead?
+                    app: app // place app into the filesystem instead?
                 })
 
                 // Mirror the structure of the source directory in the output directory.
@@ -169,7 +170,7 @@ function genDocs(dox, options, callback) {
 
                 fs.writeFile([options.dest, relativeFile].join('/'), output, function(err) {
                     if (err) throw new Error('Error writing doc file for '+dox.file+'.')
-                    callback()
+                    whenFinished()
                 })
             })
         })
