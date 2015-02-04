@@ -126,7 +126,7 @@ function serve(dir, port) {
 }
 
 /**
- * Generate documentation based on the dox of some source code.
+ * Generate documentation based on an array of dox.
  *
  * @param {Array} dox An array of dox results, each item the dox parsed from a file.
  * @param {Object} options Options for generating the docs.
@@ -144,22 +144,22 @@ function genDocs(dox, options, callback) {
     fs.readFile(options.template, function(err, data) {
         if (err) throw new Error(err)
 
-        dox.forEach(function(dox) {
-            var appFile = path.resolve(__dirname, '../src/js/app.js')
-            var b = browserify()
+        var appFile = path.resolve(__dirname, '../src/js/app.js')
+        var b = browserify()
 
-            // TODO: accept an app file via the command line. And browserify
-            // transforms too?
-            b.add(appFile)
-            .transform(to5ify)
-            .transform(famousify)
-            .transform(cssify)
-            .bundle(function(err, app) {
-                if (err) throw new Error('Error bundling app file '+appFile+'.')
+        // TODO: accept an app file via the command line. And browserify
+        // transforms too?
+        b.add(appFile)
+        .transform(to5ify)
+        .transform(famousify)
+        .transform(cssify)
+        .bundle(function(err, app) {
+            if (err) throw new Error('Error bundling app file '+appFile+'.')
 
+            dox.forEach(function(dox) {
                 var output = ejs.render(data.toString(), {
                     dox: dox,
-                    app: app
+                    app: app // place app js in filesystem instead?
                 })
 
                 // Mirror the structure of the source directory in the output directory.
