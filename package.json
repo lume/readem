@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Read the !@#$%^& docs!",
   "main": "read'em.js",
+  "bin": {
+      "readem": "bin/read'em.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "echo '<script>' > index.html && browserify src/js/app.js -t 6to5ify -t famousify -t cssify >> index.html && echo '</script>' >> index.html"
