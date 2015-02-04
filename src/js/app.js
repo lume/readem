@@ -10,7 +10,8 @@ var square = new Plane({
     properties: {
         backfaceVisibility: 'visible',
         background: 'pink',
-        padding: '5px'
+        padding: '5px',
+        overflow: 'scroll'
     }
 })
 
