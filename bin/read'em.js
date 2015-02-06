@@ -18,7 +18,7 @@ var famousify  = require('famousify')
 var cssify     = require('cssify')
 
 /**
- * Get's the version of readem
+ * Gets the version of readem
  *
  * @param {Function} callback Gets called after the version is gotten, passed a
  * signle argument: the version as a semver string.

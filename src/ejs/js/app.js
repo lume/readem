@@ -9,6 +9,8 @@ document.body.style.background = '#222'
 document.body.style.padding = '0'
 document.body.style.margin = '0'
 
+console.log(window.dox)
+
 var ctx = contextWithPerspective(1000)
 var square = new Plane({
     content: JSON.stringify(window.dox),
@@ -16,7 +18,7 @@ var square = new Plane({
         backfaceVisibility: 'visible',
         background: 'pink',
         padding: '5px',
-        overflow: 'scroll'
+        overflow: 'auto'
     }
 })
 
