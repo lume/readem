@@ -30,7 +30,7 @@ function getVersion(callback) {
     fs.readFile(packageJson, function(err, data) {
         if (err) throw new Error(err)
         callback(JSON.parse(data).version)
-    });
+    })
 }
 
 /**
@@ -59,7 +59,7 @@ function setUpCli(version) {
         while (fs.existsSync(path.resolve(app.output)))
 
     if (!app.template)
-        app.template = path.resolve(__dirname, '../src/ejs/app.ejs')
+        app.template = path.resolve(__dirname, '../src/ejs/html/app.html')
 }
 
 /**
@@ -85,7 +85,7 @@ function getDox(dir, callback) {
 
         if (files.length)
             callback = callAfter(files.length, callback).bind(this)
-        else console.log('No files found!'), callback(null)
+        else callback(null, new Error(' --- No files found!'))
 
         files.forEach(function(file) {
             fs.readFile(file, function(err, data) {
@@ -142,10 +142,11 @@ function genDocs(dox, options, callback) {
     // make the output directory.
     mkdirp.sync(options.dest)
 
+    // get the template, browserify the app file, then render the template.
     fs.readFile(options.template, function(err, data) {
         if (err) throw new Error(err)
 
-        var appFile = path.resolve(__dirname, '../src/js/app.js')
+        var appFile = path.resolve(__dirname, '../src/ejs/js/app.js')
         var b = browserify()
 
         // TODO: accept an app file via the command line. And browserify
@@ -155,7 +156,7 @@ function genDocs(dox, options, callback) {
         .transform(famousify)
         .transform(cssify)
         .bundle(function(err, app) {
-            if (err) throw new Error('Error bundling app file '+appFile+'.')
+            if (err) throw new Error('Error bundling app file '+appFile+'. '+err)
 
             dox.forEach(function(dox) {
                 var output = ejs.render(data.toString(), {
