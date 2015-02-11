@@ -20,8 +20,7 @@ var cssify     = require('cssify')
 /**
  * Gets the version of readem
  *
- * @param {Function} callback Gets called after the version is gotten, passed a
- * signle argument: the version as a semver string.
+ * @param {Function} callback Gets called after the version is gotten, passed a signle argument: the version as a semver string.
  */
 function getVersion(callback) {
     var packageJson = [path.dirname(path.dirname(require.main.filename)),
@@ -37,8 +36,7 @@ function getVersion(callback) {
  * Set's up the CLI, using commander to get specified command line arguments,
  * and setting defaults for arguments that aren't supplied.
  *
- * @param {string} version The version that gets shown at the command line by
- * commander.
+ * @param {string} version The version that gets shown at the command line by commander.
  */
 function setUpCli(version) {
     app.version(version)
@@ -65,10 +63,8 @@ function setUpCli(version) {
 /**
  * Generates dox JSON at the given directory, then fires the callback.
  *
- * @param {string} dir A directory containing source files that we wish to
- * generate dox JSON for.
- * @param {Function} callback Gets called after dox are ready, receiving a
- * single argument: the JSON dox, or null if no files were available to parse.
+ * @param {string} dir A directory containing source files that we wish to generate dox JSON for.
+ * @param {Function} callback Gets called after dox are ready, receiving a single argument: the JSON dox, or null if no files were available to parse.
  */
 function getDox(dir, callback) {
     var docs = [] // contains the dox results of each file.

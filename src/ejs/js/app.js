@@ -5,33 +5,44 @@ import PushMenuLayout from 'infamous/PushMenuLayout'
 import {contextWithPerspective} from 'infamous/utils'
 
 // TODO, use jss.
-document.body.style.background = '#222'
+document.body.style.background = 'white'
 document.body.style.padding = '0'
 document.body.style.margin = '0'
 
-console.log(window.dox)
-
 var ctx = contextWithPerspective(1000)
-var square = new Plane({
+
+var content = new Plane({
     content: JSON.stringify(window.dox),
     properties: {
         backfaceVisibility: 'visible',
-        background: 'pink',
-        padding: '5px',
+        background: 'white',
+        padding: '20px',
         overflow: 'auto'
     }
 })
 
-var layout = new PushMenuLayout()
-
-layout.setContent(square)
-layout.setMenu(new Plane({
+var menu = new Plane({
     content: 'Hello menu!',
     properties: {
-        padding: '10px',
-        background: '#444',
-        color: '#71BF52'
+        padding: '20px',
+        background: 'white'
     }
-}))
+})
+
+var layout = new PushMenuLayout({
+    menuSide: 'left',
+    menuWidth: 300,
+    menuHintSize: 0,
+    animationType: 'foldDown',
+    fadeStartColor: 'rgba(255,255,255,0)',
+    fadeEndColor: 'rgba(255,255,255,0.8)'
+})
+
+window.layout = layout
+
+layout.setContent(content)
+layout.setMenu(menu)
+
+console.log(layout)
 
 ctx.add(layout)
