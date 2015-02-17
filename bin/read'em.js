@@ -157,9 +157,8 @@ function genDocs(dox, options, callback) {
                     // TODO: accept an app file via the command line. And browserify
                     // transforms too?
                     b.add(appFile)
-                    //.transform(to5ify)
+                    .transform(cssify, {global: true})
                     .transform(famousify)
-                    .transform(cssify)
                     .bundle(function(err, app) {
                         if (err) throw new Error('Error bundling app file '+appFile+'.\n'+err)
 
