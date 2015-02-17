@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo '<script>' > index.html && browserify src/js/app.js -t 6to5ify -t famousify -t cssify >> index.html && echo '</script>' >> index.html"
+    "build": "echo '<script>' > index.html && browserify src/ejs/js/app.js -t 6to5ify -t famousify -g cssify >> index.html && echo '</script>' >> index.html"
   },
   "repository": {
     "type": "git",
