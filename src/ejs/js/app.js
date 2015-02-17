@@ -1,18 +1,21 @@
 import 'famous/core/famous.css'
+import '../../styles/default.css'
 
 import Plane from 'infamous/Plane'
 import PushMenuLayout from 'infamous/PushMenuLayout'
 import {contextWithPerspective} from 'infamous/utils'
 
+import hljs from 'highlight.js'
+
 // TODO, use jss.
 document.body.style.background = 'white'
 document.body.style.padding = '0'
 document.body.style.margin = '0'
+document.body.style.fontFamily = 'sans-serif'
 
 var ctx = contextWithPerspective(1000)
 
 var content = new Plane({
-    content: JSON.stringify(window.dox),
     properties: {
         backfaceVisibility: 'visible',
         background: 'white',
@@ -38,11 +41,17 @@ var layout = new PushMenuLayout({
     fadeEndColor: 'rgba(255,255,255,0.8)'
 })
 
-window.layout = layout
-
 layout.setContent(content)
 layout.setMenu(menu)
 
-console.log(layout)
-
 ctx.add(layout)
+
+content.on('deploy', function() {
+    var codes = document.querySelectorAll('code')
+
+    Array.prototype.forEach.call(codes, function(el) {
+        hljs.highlightBlock(el)
+    })
+});
+
+content.setContent(document.getElementById('content').innerText)

@@ -11,11 +11,12 @@ var callAfter  = require('army-knife/callAfter').default
 var rndm       = require('rndm')
 var mkdirp     = require('mkdirp')
 var ejs        = require('ejs')
+var async      = require('async')
 
 var browserify = require('browserify')
 var to5ify     = require('6to5ify')
 var famousify  = require('famousify')
-var cssify     = require('cssify')
+var cssify     = require('browserify-css')
 
 /**
  * Gets the version of readem
@@ -42,8 +43,9 @@ function setUpCli(version) {
     app.version(version)
         .option('-s, --source <source>',        'The directory containing source files to generate docs for. Defaults to ./src.')
         .option('-o, --output <destination>',   'The output directory for the docs. Defaults to a random folder in /tmp/readem.')
-        .option('-t, --template <destination>', 'The template to use. Defaults to readem\'s own template.')
+        .option('-t, --template <destination>', 'The template to use. Defaults to the template shipped with readem.')
         .option('-p, --port <port>',            'The port on which the output folder will be served. Defaults to 1134.', 1134)
+        .option('-S, --singleStar',             'Read single star comments too, not just double star comment.')
         .parse(process.argv)
 
     // If source isn't specified, use the current working directory.
@@ -64,9 +66,10 @@ function setUpCli(version) {
  * Generates dox JSON at the given directory, then fires the callback.
  *
  * @param {string} dir A directory containing source files that we wish to generate dox JSON for.
+ * @param {Object} options Object literal of options to be passed to dox. Applies to all files. See github.com/tj/dox for more info.
  * @param {Function} callback Gets called after dox are ready, receiving a single argument: the JSON dox, or null if no files were available to parse.
  */
-function getDox(dir, callback) {
+function getDox(dir, options, callback) {
     var docs = [] // contains the dox results of each file.
 
     // TODO: upgrade at-at so that it takes a filter, and read docs for all
@@ -89,7 +92,7 @@ function getDox(dir, callback) {
 
                 docs.push({
                     file: file,
-                    comments: dox.parseComments(data.toString())
+                    comments: dox.parseComments(data.toString(), options)
                 })
 
                 callback(docs)
@@ -133,56 +136,76 @@ function serve(dir, port) {
  * @param {Function} callback Called when docs are done being made.
  */
 function genDocs(dox, options, callback) {
-    var whenFinished = callAfter(dox.length, callback)
 
-    // make the output directory.
-    mkdirp.sync(options.dest)
+    async.waterfall([
+        function(done) {
+            async.parallel({
+                mkdir: function(done) {
+                    // make the output directory.
+                    mkdirp(options.dest, done)
+                },
+                template: function(done) {
+                    // get the template, browserify the app file, then render the template.
+                    fs.readFile(options.template, done)
+                }
+            }, function(err, results) { done(err, results.template) })
+        },
+        function(template, done) {
+            async.parallel({
+                bundle: function(done) {
+                    var appFile = path.resolve(__dirname, '../src/ejs/js/app.js')
+                    var b = browserify()
 
-    // get the template, browserify the app file, then render the template.
-    fs.readFile(options.template, function(err, data) {
-        if (err) throw new Error(err)
+                    // TODO: accept an app file via the command line. And browserify
+                    // transforms too?
+                    b.add(appFile)
+                    .transform(to5ify)
+                    .transform(famousify)
+                    .transform(cssify)
+                    .bundle(function(err, app) {
+                        if (err) throw new Error('Error bundling app file '+appFile+'.\n'+err)
 
-        var appFile = path.resolve(__dirname, '../src/ejs/js/app.js')
-        var b = browserify()
+                        fs.writeFile([options.dest, 'app.js'].join('/'), app, function(err) {
+                            if (err) throw new Error('Error writing app file '+appFile+'. '+err)
+                            done()
+                        })
+                    })
+                },
+                dox: function(done) {
+                    var whenFinished = callAfter(dox.length, done)
 
-        // TODO: accept an app file via the command line. And browserify
-        // transforms too?
-        b.add(appFile)
-        .transform(to5ify)
-        .transform(famousify)
-        .transform(cssify)
-        .bundle(function(err, app) {
-            if (err) throw new Error('Error bundling app file '+appFile+'. '+err)
+                    dox.forEach(function(dox) {
+                        console.log(dox, '\n')
+                        var rendered = ejs.render(template.toString(), {
+                            dox: dox
+                        })
 
-            dox.forEach(function(dox) {
-                var output = ejs.render(data.toString(), {
-                    dox: dox,
-                    app: app // place app into the filesystem instead?
-                })
+                        // Mirror the structure of the source directory in the output directory.
+                        var relativeFile = dox.file.replace(options.source+'/', '')
+                        relativeFile = [relativeFile, 'html'].join('.')
+                        mkdirp.sync([options.dest, path.dirname(relativeFile)].join('/'))
 
-                // Mirror the structure of the source directory in the output directory.
-                var relativeFile = dox.file.replace(options.source+'/', '')
-                relativeFile = [relativeFile, 'html'].join('.')
-                mkdirp.sync([options.dest, path.dirname(relativeFile)].join('/'))
-
-                fs.writeFile([options.dest, relativeFile].join('/'), output, function(err) {
-                    if (err) throw new Error('Error writing doc file for '+dox.file+'.')
-                    whenFinished()
-                })
-            })
-        })
-    })
+                        fs.writeFile([options.dest, relativeFile].join('/'), rendered, function(err) {
+                            if (err) throw new Error('Error writing doc file for '+dox.file+'.')
+                                whenFinished()
+                        })
+                    })
+                }
+            }, done)
+        }
+    ], callback)
 }
 
 getVersion(function(version) {
     setUpCli(version)
 
-    getDox(app.source, function(dox) {
+    getDox(app.source, {
+        skipSingleStar: !app.singleStar
+    }, function(dox) {
         if (dox) genDocs(dox, {
             dox: dox,
             template: app.template,
             dest: app.output,
-            // TODO store source and output in a class?
             source: app.source
         }, function() {
             console.log(' --- Done.')

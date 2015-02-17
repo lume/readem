@@ -8,7 +8,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo '<script>' > index.html && browserify src/js/app.js -t 6to5ify -t famousify -t cssify >> index.html && echo '</script>' >> index.html"
   },
   "repository": {
     "type": "git",
@@ -44,7 +43,7 @@
     "famous": "git+https://github.com/trusktr/famous.git#trusktr",
     "famousify": "^0.1.5",
     "highlight.js": "^8.4.0",
-    "infamous": "^0.0.37",
+    "infamous": "^0.0.39",
     "mkdirp": "^0.5.0",
     "rndm": "^1.1.0",
     "serve": "^1.4.0"
