@@ -2,14 +2,34 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <style>
+            template {
+                display: none;
+            }
+        </style>
+        <link type="text/css" href="/code.css" />
     </head>
     <body>
+        <script type="template" id="content">
+            <% dox.comments.forEach(function(comment) { %>
+                <div>
+                    <h1 id="<%= comment.ctx.name %>">
+                        <a href="#<%= comment.ctx.name %>"># </a>
+                        <%- comment.ctx.name %>
+                    </h1>
+
+                    <%- comment.description.full %>
+
+                    <pre><code><%= comment.code %></code></pre>
+                </div>
+            <% }) %>
+        </script>
+
         <script>
             // place this in a json file next to the template instead of inline here?
             window.dox = <%- JSON.stringify(dox) %>
         </script>
-        <script>
-            <%- app %>
-        </script>
+
+        <script src="/app.js"></script>
     </body>
 </html>
