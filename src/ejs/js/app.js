@@ -1,5 +1,5 @@
 require('famous/core/famous.css')
-require('highlight.js/styles/solarized_light.css')
+//require('highlight.js/styles/solarized_light.css')
 
 var Plane                  = require('infamous/Plane').default
 var PushMenuLayout         = require('infamous/PushMenuLayout').default
