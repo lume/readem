@@ -25,7 +25,7 @@ var content = new Plane({
 })
 
 var menu = new Plane({
-    content: 'Hello menu!',
+    content: 'A menu will move into this space soon. ;)',
     properties: {
         padding: '20px',
         background: 'white'
@@ -37,8 +37,8 @@ var layout = new PushMenuLayout({
     menuWidth: 300,
     menuHintSize: 0,
     animationType: 'foldDown',
-    fadeStartColor: 'rgba(255,255,255,0)',
-    fadeEndColor: 'rgba(255,255,255,0.8)'
+    fadeStartColor: 'rgba(255,255,255,0.4)',
+    fadeEndColor: 'rgba(255,255,255,1)'
 })
 
 layout.setContent(content)
