@@ -7,12 +7,6 @@ import {contextWithPerspective} from 'infamous/utils'
 
 import hljs from 'highlight.js'
 
-// TODO, use jss.
-document.body.style.background = 'white'
-document.body.style.padding = '0'
-document.body.style.margin = '0'
-document.body.style.fontFamily = 'sans-serif'
-
 var ctx = contextWithPerspective(1000)
 
 var content = new Plane({
