@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-console.log(' --- Generating docs...')
 
 var app        = require('commander')
 var dox        = require('dox')
@@ -175,7 +174,6 @@ function genDocs(dox, options, callback) {
                     var whenFinished = callAfter(dox.length, done)
 
                     dox.forEach(function(dox) {
-                        console.log(dox, '\n')
                         var rendered = ejs.render(template.toString(), {
                             dox: dox
                         })
@@ -196,20 +194,22 @@ function genDocs(dox, options, callback) {
     ], callback)
 }
 
+console.log(' --- Generating docs...')
 getVersion(function(version) {
     setUpCli(version)
 
     getDox(app.source, {
         skipSingleStar: !app.singleStar
     }, function(dox) {
-        if (dox) genDocs(dox, {
-            dox: dox,
-            template: app.template,
-            dest: app.output,
-            source: app.source
-        }, function() {
-            console.log(' --- Done.')
-            serve(app.output, app.port)
-        })
+        if (dox)
+            genDocs(dox, {
+                dox: dox,
+                template: app.template,
+                dest: app.output,
+                source: app.source
+            }, function() {
+                console.log(' --- Done.')
+                serve(app.output, app.port)
+            })
     })
 })
