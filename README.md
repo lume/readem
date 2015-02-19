@@ -3,15 +3,16 @@ read'em
 
 Read the !@#$%^& docs!
 
+Use readem to generate and serve documentation for source files that use
+jsdoc-style comments.
+
+Readem uses [dox](https://github.com/tj/dox) for parsing comments, so take a
+look at that project to get an idea of what types of jsdoc/custom features are
+supported. Visit [usejsdoc.org](http://usejsdoc.org/) to learn jsdoc syntax and
+tags.
 
 Usage
 -----
-
-Use readem to generate and serve docs for source files that uses jsdoc-style
-doc comments. Readem uses [dox](https://github.com/tj/dox) for parsing
-comments, so take a look at that project to get an idea of what types of
-comment features are supported. Also see [usejsdoc.org](http://usejsdoc.org/)
-for basic jsdoc syntax and tags.
 
 install readem globally.
 
