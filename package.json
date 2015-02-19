@@ -1,6 +1,6 @@
 {
   "name": "readem",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Read the !@#$%^& docs!",
   "main": "read'em.js",
   "bin": {
