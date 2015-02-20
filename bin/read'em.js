@@ -194,6 +194,9 @@ function genDocs(dox, options, callback) {
     ], callback)
 }
 
+/*!
+ * ignore
+ */
 console.log(' --- Generating docs...')
 getVersion(function(version) {
     setUpCli(version)
