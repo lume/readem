@@ -32,16 +32,21 @@
     <body>
         <script type="template" id="content">
             <% dox.comments.forEach(function(comment) { %>
-                <div>
-                    <h1 id="<%= (comment.ctx? comment.ctx.name: comment.ctx) %>">
-                        <a class="hash" href="#<%= (comment.ctx? comment.ctx.name: comment.ctx) %>"># </a>
-                        <%- (comment.ctx? comment.ctx.name: comment.ctx) %>
-                    </h1>
+                <% if (!comment.ignore) { %>
 
-                    <%- comment.description.full %>
+                    <% // TODO: ignore dox that don't have a ctx. %>
+                    <div>
+                        <h1 id="<%= (comment.ctx? comment.ctx.name: comment.ctx) %>">
+                            <a class="hash" href="#<%= (comment.ctx? comment.ctx.name: comment.ctx) %>"># </a>
+                            <%- (comment.ctx? comment.ctx.name: comment.ctx) %>
+                        </h1>
 
-                    <pre><code class="javascript"><%= comment.code %></code></pre>
-                </div>
+                        <%- comment.description.full %>
+
+                        <pre><code class="javascript"><%= comment.code %></code></pre>
+                    </div>
+
+                <% } %>
             <% }) %>
         </script>
 
