@@ -15,7 +15,7 @@ var async      = require('async')
 var browserify = require('browserify')
 var to5ify     = require('6to5ify')
 var famousify  = require('famousify')
-var cssify     = require('browserify-css')
+var cssify     = require('cssify')
 
 var webpack = require('webpack')
 
