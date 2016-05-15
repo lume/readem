@@ -38,7 +38,7 @@
     "browserify": "^8.1.1",
     "commander": "^2.6.0",
     "cssify": "^0.6.0",
-    "dox": "^0.6.1",
+    "dox": "^0.8.1",
     "ejs": "^2.2.4",
     "famous": "git+https://github.com/trusktr/famous.git#trusktr",
     "famousify": "^0.1.5",
