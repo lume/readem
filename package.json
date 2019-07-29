@@ -1,50 +1,50 @@
 {
-  "name": "readem",
-  "version": "0.1.5",
-  "description": "Read the !@#$%^& docs!",
-  "main": "read'em.js",
-  "bin": {
-    "readem": "bin/read'em.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:trusktr/readem.git"
-  },
-  "keywords": [
-    "rtfm",
-    "docs",
-    "doc generator",
-    "documentation generator",
-    "docgen",
-    "dox",
-    "documentation"
-  ],
-  "authors": [
-    "Joseph Orbegoso Pea <joe@trusktr.io>"
-  ],
-  "license": "MPL v2.0",
-  "bugs": {
-    "url": "https://github.com/trusktr/readem/issues"
-  },
-  "homepage": "https://github.com/trusktr/readem",
-  "dependencies": {
-    "6to5ify": "^4.0.0",
-    "army-knife": "^0.2.0",
-    "async": "^0.9.0",
-    "at-at": "^0.1.0",
-    "browserify": "^8.1.1",
-    "commander": "^2.6.0",
-    "cssify": "^0.6.0",
-    "dox": "^0.8.1",
-    "ejs": "^2.2.4",
-    "highlight.js": "^8.4.0",
-    "infamous": "infamous/infamous#3f83932c854ea45f525b863385d6d2664dbf6faa",
-    "mkdirp": "^0.5.0",
-    "rndm": "^1.1.0",
-    "serve": "^1.4.0",
-    "webpack": "^1.6.0"
-  }
+    "name": "readem",
+    "version": "0.1.5",
+    "description": "Read the !@#$%^& docs!",
+    "main": "read'em.js",
+    "bin": {
+        "readem": "bin/read'em.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:trusktr/readem.git"
+    },
+    "keywords": [
+        "rtfm",
+        "docs",
+        "doc generator",
+        "documentation generator",
+        "docgen",
+        "dox",
+        "documentation"
+    ],
+    "authors": [
+        "Joseph Orbegoso Pea <joe@trusktr.io>"
+    ],
+    "license": "MPL v2.0",
+    "bugs": {
+        "url": "https://github.com/trusktr/readem/issues"
+    },
+    "homepage": "https://github.com/trusktr/readem",
+    "dependencies": {
+        "6to5ify": "^4.0.0",
+        "army-knife": "^0.2.0",
+        "async": "^0.9.0",
+        "at-at": "^0.1.0",
+        "browserify": "^8.1.1",
+        "commander": "^2.6.0",
+        "cssify": "^0.6.0",
+        "dox": "^0.8.1",
+        "ejs": "^2.2.4",
+        "highlight.js": "^8.4.0",
+        "infamous": "infamous/infamous#3f83932c854ea45f525b863385d6d2664dbf6faa",
+        "mkdirp": "^0.5.0",
+        "rndm": "^1.1.0",
+        "serve": "^1.4.0",
+        "webpack": "^1.6.0"
+    }
 }
