@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var app = require('commander')
+var cli = require('commander')
 var dox = require('dox')
 var spawn = require('child_process').spawn
 var path = require('path')
@@ -11,12 +11,6 @@ var rndm = require('rndm')
 var mkdirp = require('mkdirp')
 var ejs = require('ejs')
 var async = require('async')
-
-var browserify = require('browserify')
-var to5ify = require('6to5ify')
-var famousify = require('famousify')
-var cssify = require('cssify')
-
 var webpack = require('webpack')
 
 /**
@@ -40,7 +34,7 @@ function getVersion(callback) {
  * @param {string} version The version that gets shown at the command line by commander.
  */
 function setUpCli(version) {
-    app.version(version)
+    cli.version(version)
         .option(
             '-s, --source <source>',
             'The directory containing source files to generate docs for. Defaults to ./src.'
@@ -55,17 +49,17 @@ function setUpCli(version) {
         .parse(process.argv)
 
     // If source isn't specified, use the current working directory.
-    if (app.source) app.source = path.resolve(app.source)
-    else app.source = process.env.PWD
+    if (cli.source) cli.source = path.resolve(cli.source)
+    else cli.source = process.env.PWD
 
     // If the output dir isn't specified, choose a random one that doesn't
     // already exist in /tmp/readem.
-    if (app.output) app.output = path.resolve(app.output)
+    if (cli.output) cli.output = path.resolve(cli.output)
     else
-        do app.output = ['/tmp/readem', rndm(24)].join('/')
-        while (fs.existsSync(path.resolve(app.output)))
+        do cli.output = ['/tmp/readem', rndm(24)].join('/')
+        while (fs.existsSync(path.resolve(cli.output)))
 
-    if (!app.template) app.template = path.resolve(__dirname, '../src/ejs/html/app.html')
+    if (!cli.template) cli.template = path.resolve(__dirname, '../src/ejs/html/app.ejs')
 }
 
 /**
@@ -84,7 +78,7 @@ function getDox(dir, options, callback) {
         // filter the files in the dir so we have only files ending with .js
         files = files.filter(function(file) {
             var extension = 'js'
-            return !!file.match(new RegExp('^.*\\.' + extension + '$'))
+            return !!file.match(new RegExp('^.*\\.' + extension + '$')) && !fs.lstatSync(file).isDirectory()
         })
 
         if (files.length) callback = callAfter(files.length, callback).bind(this)
@@ -92,7 +86,10 @@ function getDox(dir, options, callback) {
 
         files.forEach(function(file) {
             fs.readFile(file, function(err, data) {
-                if (err) throw new Error(err)
+                if (err) {
+                    console.log('error on file', file)
+                    throw new Error(err)
+                }
 
                 docs.push({
                     file: file,
@@ -149,7 +146,7 @@ function genDocs(dox, options, callback) {
                             mkdirp(options.dest, done)
                         },
                         template: function(done) {
-                            // get the template, browserify the app file, then render the template.
+                            // get the template, bundle the app file, then render the template.
                             fs.readFile(options.template, done)
                         },
                     },
@@ -162,37 +159,59 @@ function genDocs(dox, options, callback) {
                 async.parallel(
                     {
                         bundle: function(done) {
-                            var appFile = path.resolve(__dirname, '../src/ejs/js/app.js')
-                            var b = browserify()
+                            var entry = path.resolve(__dirname, '../src/ejs/js/app.js')
 
-                            // TODO: accept an app file via the command line. And browserify
-                            // transforms too?
-                            b.add(appFile)
-                                .transform(to5ify)
-                                .transform(famousify)
-                                .transform(cssify)
-                                .bundle(function(err, app) {
-                                    if (err) throw new Error('Error bundling app file ' + appFile + '.\n' + err)
+                            // TODO: accept an app file via the command line?
+                            // TODO extnsible webpack config
 
-                                    fs.writeFile([options.dest, 'app.js'].join('/'), app, function(err) {
-                                        if (err) throw new Error('Error writing app file ' + appFile + '. ' + err)
-                                        done()
-                                    })
-                                })
+                            webpack(
+                                {
+                                    entry,
+                                    devtool: 'source-map',
+                                    mode: 'development',
+                                    output: {
+                                        path: options.dest,
+                                        filename: 'app.js',
+                                    },
+                                    resolve: {
+                                        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+                                        alias: {
+                                            infamous: 'infamous/src',
+                                        },
+                                    },
+                                    module: {
+                                        rules: [
+                                            {
+                                                test: /\.js$/,
+                                                use: ['source-map-loader'],
+                                                enforce: 'pre',
+                                            },
+                                            {
+                                                test: /\.css$/,
+                                                use: ['style-loader', 'css-loader'],
+                                            },
+                                            {
+                                                test: /\.tsx?$/,
+                                                exclude: [/node_modules(?!\/(infamous))/],
+                                                loader: 'ts-loader',
+                                                options: {
+                                                    transpileOnly: true,
+                                                    //experimentalWatchApi: true,
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                (err, stats) => {
+                                    if (err) throw err
+                                    if (stats.hasErrors()) {
+                                        console.log(stats.toString())
+                                        throw new Error('^ compilation has errors.')
+                                    }
 
-                            //CONTINUE: convert to webpack.
-                            //b.add(appFile)
-                            //.transform(to5ify)
-                            //.transform(famousify)
-                            //.transform(cssify)
-                            //.bundle(function(err, app) {
-                            //if (err) throw new Error('Error bundling app file '+appFile+'.\n'+err)
-
-                            //fs.writeFile([options.dest, 'app.js'].join('/'), app, function(err) {
-                            //if (err) throw new Error('Error writing app file '+appFile+'. '+err)
-                            //done()
-                            //})
-                            //})
+                                    done()
+                                }
+                            )
                         },
                         dox: function(done) {
                             var whenFinished = callAfter(dox.length, done)
@@ -205,9 +224,9 @@ function genDocs(dox, options, callback) {
                                 // Mirror the structure of the source directory in the output directory.
                                 var relativeFile = dox.file.replace(options.source + '/', '')
                                 relativeFile = [relativeFile, 'html'].join('.')
-                                mkdirp.sync([options.dest, path.dirname(relativeFile)].join('/'))
+                                mkdirp.sync(path.join(options.dest, path.dirname(relativeFile)))
 
-                                fs.writeFile([options.dest, relativeFile].join('/'), rendered, function(err) {
+                                fs.writeFile(path.join(options.dest, relativeFile), rendered, function(err) {
                                     if (err) throw new Error('Error writing doc file for ' + dox.file + '.')
                                     whenFinished()
                                 })
@@ -230,9 +249,9 @@ getVersion(function(version) {
     setUpCli(version)
 
     getDox(
-        app.source,
+        cli.source,
         {
-            skipSingleStar: !app.singleStar,
+            skipSingleStar: !cli.singleStar,
         },
         function(dox) {
             if (dox)
@@ -240,13 +259,13 @@ getVersion(function(version) {
                     dox,
                     {
                         dox: dox,
-                        template: app.template,
-                        dest: app.output,
-                        source: app.source,
+                        template: cli.template,
+                        dest: cli.output,
+                        source: cli.source,
                     },
                     function() {
                         console.log(' --- Done.')
-                        serve(app.output, app.port)
+                        serve(cli.output, cli.port)
                     }
                 )
         }

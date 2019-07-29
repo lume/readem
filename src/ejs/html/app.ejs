@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+
+                font-family: sans-serif;
+                background: rgb(30, 30, 30);
+            }
+
+            a {
+                text-decoration: none;
+            }
+            a:visited {
+                color: inherit;
+            }
+
+            template {
+                display: none;
+            }
+
+            /* TODO: use jss for runtime styles. */
+            a.hash {
+                color: #800;
+            }
+        </style>
+        <link type="text/css" href="/code.css" />
+    </head>
+    <body>
+        <script type="template" id="docsContent"></script>
+
+        <script>
+            // place this in a json file next to the template instead of inline here?
+            window.dox = <%- JSON.stringify(dox) %>
+        </script>
+
+        <!-- Make all the things -->
+        <i-scene>
+            <i-push-pane-layout id="layout">
+                <!-- TODO recreate these settings
+                menuSide: 'left',
+                menuWidth: 300,
+                menuHintSize: 0,
+                //animationType: 'moveBack',
+                animationType: 'foldDown',
+                fadeStartColor: 'rgba(30,30,30,0)',
+                fadeEndColor: 'rgba(30,30,30,0.8)', -->
+
+                <i-node
+                    slot="pane"
+                    Xsize-mode="proportional literal"
+                    Xsize="1 60"
+                    style="
+                        padding: 20px;
+                        background: white;
+                    "
+                >
+                    To Menu, or not to menu. ;)
+                </i-node>
+                <!-- prettier-ignore -->
+                <i-node
+                    slot="body"
+                    style="
+                        backface-visibility: visible;
+                        background: white;
+                        padding: 20px;
+                        overflow: auto;
+                    "
+                >
+                    <% dox.comments.forEach(function(comment) { %>
+                        <% if (!comment.ignore) { %>
+
+                            <%= /* TODO: ignore dox that don't have a ctx. */ %>
+
+                            <div>
+                                <h1 id="<%= (comment.ctx? comment.ctx.name: comment.ctx) %>">
+                                    <a class="hash" href="#<%= (comment.ctx? comment.ctx.name: comment.ctx) %>"># </a>
+                                    <%- (comment.ctx? comment.ctx.name: comment.ctx) %>
+                                </h1>
+
+                                <%- comment.description.full %>
+
+                                <pre><code class="javascript"><%= comment.code %></code></pre>
+                            </div>
+
+                        <% } %>
+                    <% }) %>
+                </i-node>
+            </i-push-pane-layout>
+        </i-scene>
+
+        <script src="/app.js"></script>
+    </body>
+</html>
