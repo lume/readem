@@ -1,63 +1,63 @@
 {
-  "name": "readem",
-  "version": "0.1.5",
-  "description": "Read the !@#$%^& docs!",
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "exports COMMENT:": "This removes 'dist' from import statements, see https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
-  "exports": {
-    ".": "./dist/index.js",
-    "./": "./dist/"
-  },
-  "bin": {
-    "readem": "bin/read'em.js"
-  },
-  "scripts": {
-    "build": "tsc -p ./tsconfig.json"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:trusktr/readem.git"
-  },
-  "keywords": [
-    "rtfm",
-    "docs",
-    "doc generator",
-    "documentation generator",
-    "docgen",
-    "dox",
-    "documentation"
-  ],
-  "authors": [
-    "Joseph Orbegoso Pea <joe@trusktr.io>"
-  ],
-  "license": "MPL v2.0",
-  "bugs": {
-    "url": "https://github.com/trusktr/readem/issues"
-  },
-  "homepage": "https://github.com/trusktr/readem",
-  "dependencies": {
-    "army-knife": "^0.2.0",
-    "async": "^0.9.0",
-    "at-at": "^1.1.0",
-    "commander": "^2.6.0",
-    "dox": "^0.8.1",
-    "ejs": "^2.2.4",
-    "highlight.js": "^8.4.0",
-    "infamous": "^21.2.0",
-    "jsdoctypeparser": "^6.1.0",
-    "lowclass": "^4.7.0",
-    "mkdirp": "^0.5.1",
-    "rimraf": "^2.0.3",
-    "rndm": "^1.1.0",
-    "serve": "^1.4.0",
-    "webpack": "^1.6.0"
-  },
-  "devDependencies": {
-    "@types/mkdirp": "^0.5.2",
-    "@types/node": "^13.1.8",
-    "@types/rimraf": "^2.0.3",
-    "prettier": "^1.19.1",
-    "typescript": "^3.7.5"
-  }
+	"name": "readem",
+	"version": "0.1.5",
+	"description": "Read the !@#$%^& docs!",
+	"type": "module",
+	"types": "./dist/index.d.ts",
+	"exports COMMENT:": "This removes 'dist' from import statements, see https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
+	"exports": {
+		".": "./dist/index.js",
+		"./": "./dist/"
+	},
+	"bin": {
+		"readem": "bin/read'em.js"
+	},
+	"scripts": {
+		"build": "tsc -p ./tsconfig.json"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:trusktr/readem.git"
+	},
+	"keywords": [
+		"rtfm",
+		"docs",
+		"doc generator",
+		"documentation generator",
+		"docgen",
+		"dox",
+		"documentation"
+	],
+	"authors": [
+		"Joseph Orbegoso Pea <joe@trusktr.io>"
+	],
+	"license": "MPL v2.0",
+	"bugs": {
+		"url": "https://github.com/trusktr/readem/issues"
+	},
+	"homepage": "https://github.com/trusktr/readem",
+	"dependencies": {
+		"army-knife": "^0.2.0",
+		"async": "^0.9.0",
+		"at-at": "^1.1.0",
+		"commander": "^2.6.0",
+		"dox": "^0.8.1",
+		"ejs": "^2.2.4",
+		"highlight.js": "^8.4.0",
+		"infamous": "^21.2.0",
+		"jsdoctypeparser": "^6.1.0",
+		"lowclass": "^4.7.0",
+		"mkdirp": "^0.5.1",
+		"rimraf": "^2.0.3",
+		"rndm": "^1.1.0",
+		"serve": "^1.4.0",
+		"webpack": "^1.6.0"
+	},
+	"devDependencies": {
+		"@types/mkdirp": "^0.5.2",
+		"@types/node": "^13.1.8",
+		"@types/rimraf": "^2.0.3",
+		"prettier": "^1.19.1",
+		"typescript": "^3.7.5"
+	}
 }
