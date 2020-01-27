@@ -51,8 +51,7 @@
 		"mkdirp": "^0.5.1",
 		"rimraf": "^2.0.3",
 		"rndm": "^1.1.0",
-		"serve": "^1.4.0",
-		"webpack": "^1.6.0"
+		"serve": "^1.4.0"
 	},
 	"devDependencies": {
 		"@types/mkdirp": "^0.5.2",
