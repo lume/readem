@@ -13,7 +13,22 @@
 		"readem": "bin/read'em.js"
 	},
 	"scripts": {
-		"build": "tsc -p ./tsconfig.json",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+		"clean": "lume clean",
+		"build": "lume build",
+		"dev": "lume dev",
+		"typecheck": "lume typecheck",
+		"typecheck:watch": "lume typecheckWatch",
+		"test": "lume test",
+		"test:debug": "lume testDebug",
+		"prettier": "lume prettier",
+		"prettier:list": "lume prettierList",
+		"release:patch": "lume releasePatch",
+		"release:minor": "lume releaseMinor",
+		"release:major": "lume releaseMajor",
+		"version": "lume versionHook",
+		"postversion": "lume postVersionHook",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
 		"prepack": "npm run build"
 	},
 	"repository": {
@@ -41,6 +56,8 @@
 		"army-knife": "^0.2.0",
 		"async": "^0.9.0",
 		"at-at": "^1.1.0",
+		"builder": "^5.0.0",
+		"builder-js-package": "^1.0.0",
 		"commander": "^2.6.0",
 		"dox": "^0.8.1",
 		"ejs": "^2.2.4",
@@ -49,14 +66,12 @@
 		"jsdoctypeparser": "^6.1.0",
 		"lowclass": "^4.7.0",
 		"mkdirp": "^0.5.1",
-		"rimraf": "^2.0.3",
 		"rndm": "^1.1.0",
 		"serve": "^1.4.0"
 	},
 	"devDependencies": {
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^13.1.8",
-		"@types/rimraf": "^2.0.3",
 		"prettier": "^1.19.1",
 		"typescript": "^3.7.5"
 	}

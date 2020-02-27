@@ -1,7 +1,7 @@
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 import walker from 'at-at'
-import mkdirp from 'mkdirp'
+import * as mkdirp from 'mkdirp'
 import jsdocTypeParse from 'jsdoctypeparser'
 // TODO, import Observable from a separate package linked by Rush.js
 import {Observable} from './Observable.js'
