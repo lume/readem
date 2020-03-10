@@ -1,7 +1,6 @@
-read'em
-=======
+# read'em
 
-Read the !@#$%^& docs!
+Read the !@#\$%^& docs!
 
 Use readem to generate and serve documentation for source files that use
 jsdoc-style comments.
@@ -11,8 +10,7 @@ look at that project to get an idea of what types of jsdoc/custom features are
 supported. Visit [usejsdoc.org](http://usejsdoc.org/) to learn jsdoc syntax and
 tags.
 
-Usage
------
+## Usage
 
 install readem globally.
 
@@ -28,7 +26,7 @@ generate docs in the current working directory and have them served locally.
 readem
 ```
 
-visit `http://localhost:1134` in your browser to read the !@#$%^& docs!
+visit `http://localhost:1134` in your browser to read the !@#\$%^& docs!
 
 To see available options, use the `-h` flag.
 
