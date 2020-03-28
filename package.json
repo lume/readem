@@ -63,7 +63,7 @@
 		"highlight.js": "^8.4.0",
 		"infamous": "21.2.0",
 		"jsdoctypeparser": "^6.1.0",
-		"lowclass": "^4.7.0",
+		"lowclass": "^4.9.3",
 		"mkdirp": "^0.5.1",
 		"rndm": "^1.1.0",
 		"serve": "^1.4.0"
