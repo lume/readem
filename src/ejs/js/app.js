@@ -4,9 +4,9 @@ import '../../styles/app.css'
 import Surface from 'famous/core/Surface'
 import Scrollview from 'famous/views/Scrollview'
 
-import Plane from 'infamous/Plane'
-import PushMenuLayout from 'infamous/PushMenuLayout'
-import {contextWithPerspective} from 'infamous/utils'
+import Plane from 'lume/Plane'
+import PushMenuLayout from 'lume/PushMenuLayout'
+import {contextWithPerspective} from 'lume/utils'
 
 import hljs from 'highlight.js'
 
@@ -98,7 +98,7 @@ window.layout = layout
 layout.setContent(content)
 layout.setMenu(menu)
 
-// TODO: Fix/remove when infamous v0.1.0 PushMenuLayout.setMenu accepts vanilla famous renderables. {{
+// TODO: Fix/remove when LUME v0.1.0 PushMenuLayout.setMenu accepts vanilla famous renderables. {{
 //menu.pipe(layout.touchSync)
 //menu.on('mouseenter', function() {
 //if (!layout.isOpening) {
