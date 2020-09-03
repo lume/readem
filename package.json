@@ -65,7 +65,7 @@
 		"lowclass": "^4.9.3",
 		"mkdirp": "^0.5.1",
 		"rndm": "^1.1.0",
-		"serve": "^1.4.0"
+		"serve": "^11.3.2"
 	},
 	"devDependencies": {
 		"@lume/cli": "^2.0.0",
