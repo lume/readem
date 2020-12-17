@@ -5,6 +5,11 @@ Read the !@#\$%^& docs!
 Use readem to generate and serve documentation for source files that use
 jsdoc-style comments.
 
+For now, see the jsdoc-to-docsify example's
+[README](./examples/jsdoc-to-docsify/README.md) (WIP, `@function` and Docsify
+rendering coming next...)
+
+<!--
 Readem uses [dox](https://github.com/tj/dox) for parsing comments, so take a
 look at that project to get an idea of what types of jsdoc/custom features are
 supported. Visit [usejsdoc.org](http://usejsdoc.org/) to learn jsdoc syntax and
@@ -33,3 +38,4 @@ To see available options, use the `-h` flag.
 ```
 readem -h
 ```
+-->
