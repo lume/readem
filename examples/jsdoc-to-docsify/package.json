@@ -1,0 +1,12 @@
+{
+	"name": "jsdoc-to-docsify-example",
+	"type": "module",
+	"scripts": {
+		"build": "npm run build:docs",
+		"build:docs": "node ./build-docs.js"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"readem": "^0.2.1"
+	}
+}
