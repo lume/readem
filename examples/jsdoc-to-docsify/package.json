@@ -7,6 +7,6 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"readem": "file:../../"
+		"readem": "^0.2.2"
 	}
 }
