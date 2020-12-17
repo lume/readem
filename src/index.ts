@@ -90,11 +90,12 @@ export class FileScanner extends Observable {
  */
 export class FolderScanner extends FileScanner {
 	/**
-	 * @method scanFolder - Scans a folder and all sub-folders any level deep for all JSDoc-like comments in files.
+	 * @method scanFolder - Scans a folder and all sub-folders any level deep
+	 * for all JSDoc-like comments in files.
 	 * @param {string} folder - The folder to scan.
-	 * @returns {Promise<FileComments>} - A promise that resolves to an object
-	 * containing the normalized object representing the comments found in the
-	 * file.
+	 * @returns {Promise<FileComments[]>} - A promise that resolves to an array
+	 * of objects, each one containing the normalized comments found in a file
+	 * of the given folder.
 	 */
 	async scanFolder(folder: string): Promise<FileComments[]> {
 		const files = await new Promise<string[]>(resolve => {
@@ -121,7 +122,7 @@ export class FolderScanner extends FileScanner {
 		for (const file of files) {
 			promises.push(
 				this.scanFile(file).then((comments: Comment[]) => {
-					const fileResult = {
+					const fileResult: FileComments = {
 						file,
 						comments,
 					}
@@ -200,9 +201,14 @@ type FileComments = {
 	comments: Comment[]
 }
 
+// See https://regexr.com/4k6je
 const doubleStarCommentBlockRegex = /\/\*\*((?:\s|\S)*?)\*\//g
-const leadingStarsRegex = /^ *\* ?/gm
-const jsDocTagRegex = /^ *(?:@([a-zA-Z]+))(?: *(?:{(.*)}))?(?: *((?:[^@\s]|@@)+))?(?: *(?:- *)?((?:[^@]|@@)*))?/gm
+
+// See https://regexr.com/4k6k3
+const leadingStarsRegex = /^[^\S\r\n]*\*[^\S\r\n]?/gm
+
+// See https://regexr.com/4k6l7
+const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -557,7 +563,7 @@ export class CommentAnalyzer {
 			return
 		}
 
-		// if a method defintiion already exists, skip this one. We only accept one definition.
+		// if a method definition already exists, skip this one. We only accept one method definition per class.
 		if (classMeta.methods.hasOwnProperty(property)) {
 			propertyOrMethodAlreadyExistsWarning('property', comment, Class, property)
 			return
