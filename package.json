@@ -29,7 +29,7 @@
 		"version": "lume versionHook",
 		"postversion": "lume postVersionHook",
 		"OTHER SCRIPTS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX": "",
-		"prepack": "npm run build"
+		"prepare": "npm run build"
 	},
 	"repository": {
 		"type": "git",
@@ -68,7 +68,7 @@
 		"serve": "^1.4.0"
 	},
 	"devDependencies": {
-		"@lume/cli": "^0.2.0",
+		"@lume/cli": "^0.2.4",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^13.1.8",
 		"prettier": "^1.19.1",
