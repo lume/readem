@@ -37,9 +37,15 @@ async function main() {
 		})
 	})
 
-	console.log(docsMeta.classes.get('Bar'))
-
 	const writePromises = []
+
+	/** @typedef {string} Filename */
+
+	/**
+	 * A map of file names to the content we will write to those files.
+	 * @type {Record<Filename, string>}
+	 */
+	const fileContents = {}
 
 	// For each class, we write a markdown file in whatever format we want.
 	for (const [, classInfo] of docsMeta.classes) {
@@ -49,29 +55,94 @@ async function main() {
 		// f.e. ./docs/api/Bar.md
 		const outputFile = sourceFile.replace('src/', 'docs/api/').replace('.js', '.md')
 
-		const promise = fs.promises.writeFile(path.resolve(outputFile), classMarkdownTemplate(classInfo))
+		let markdown = fileContents[outputFile] || ''
+		markdown += '\n\n' + classMarkdownTemplate(classInfo)
+		fileContents[outputFile] = markdown
+	}
 
+	for (const [, functionInfo] of docsMeta.functions) {
+		// f.e. ./src/Bar.js
+		const sourceFile = functionInfo.file
+
+		// f.e. ./docs/api/Bar.md
+		const outputFile = sourceFile.replace('src/', 'docs/api/').replace('.js', '.md')
+
+		let markdown = fileContents[outputFile] || ''
+		markdown += '\n\n' + functionMarkdownTemplate(functionInfo)
+		fileContents[outputFile] = markdown
+	}
+
+	for (const [outputFile, markdown] of Object.entries(fileContents)) {
+		const promise = fs.promises.writeFile(path.resolve(outputFile), markdown)
 		writePromises.push(promise)
 	}
 
+	// Wait for all the files to be written
 	await Promise.all(writePromises)
 }
 
-// Using the information regarding the detected classes, we can generate
-// whatever markdown format we want. Question is, what markdown do we want. A
-// good place to experiment with GitHub markdown is at http://gist.github.com.
-// We can write some markdown there to decide how we want the docs to look, then
-// generate that same format here.
-function classMarkdownTemplate(classInfo) {
+// Using the information regarding the detected things, we can generate
+// whatever markdown format we want. Question is, what markdown do we want. This
+// is where we can define that! (We can experiment on GitHub to see what markdown
+// output we like.)
+
+/**
+ * Generate desired markdown for a class definition.
+ * @param {import('readem').ClassMeta} info
+ */
+function classMarkdownTemplate(info) {
 	return `
-# \`${classInfo.abstract ? 'abstract ' : ''}class ${classInfo.name}\`
+# \`${info.abstract ? 'abstract ' : ''}class ${info.name}\`
 
-## \`extends ${classInfo.extends.join(', ')}\`
+## \`extends ${info.extends.join(', ')}\`
 
-## properties
+${Object.keys(info.properties).length ? '## properties' : ''}
 
-${Object.entries(classInfo.properties).map(
-	([name, {type, description, access}]) => ` - _${access}_ **${name}**: ${type} - ${description}`,
-)}
+${Object.values(info.properties)
+	.map(({name, type, description, access}) => ` - _${access}_ **${name}**: ${type} - ${description}`)
+	.join('\n')}
+
+${Object.keys(info.methods).length ? '## methods' : ''}
+
+${Object.values(info.methods)
+	.map(m => methodMarkdownTemplate(m))
+	.join('\n\n')}
+`
+}
+
+/**
+ * Generate desired markdown for a function definition.
+ * @param {import('readem').FunctionMeta} info
+ */
+function functionMarkdownTemplate(info) {
+	return `
+# \`function ${info.name}\`
+
+${info.description || ''}
+
+${Object.keys(info.params).length ? '## params' : ''}
+
+${Object.values(info.params)
+	.map(({name, type, description}) => ` - **${name}**: ${type} - ${description}`)
+	.join('\n')}
+
+## returns ${info.returns || 'void'}
+`
+}
+
+/**
+ * @param {import('readem').MethodMeta} info
+ */
+function methodMarkdownTemplate(info) {
+	return `
+### \`${info.access} method ${info.name}\`
+
+${Object.keys(info.params).length ? '#### params' : ''}
+
+${Object.values(info.params)
+	.map(({name, type, description}) => ` - **${name}**: ${type} - ${description}`)
+	.join('\n')}
+
+#### returns ${info.returns || 'void'}
 `
 }
