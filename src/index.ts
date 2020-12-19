@@ -201,14 +201,17 @@ type FileComments = {
 	comments: Comment[]
 }
 
-// See https://regexr.com/4k6je
+// A regex for detecting double-star /** */ comments. See https://regexr.com/4k6je
 const doubleStarCommentBlockRegex = /\/\*\*((?:\s|\S)*?)\*\//g
 
-// See https://regexr.com/4k6k3
+// A regex to detect the leading asterisks of multiline JSDoc comments. See
+// https://regexr.com/4k6k3
 const leadingStarsRegex = /^[^\S\r\n]*\*[^\S\r\n]?/gm
 
+// A regex to detect JSDoc tags in the content of /** */ comment. This is used
+// after the content has been extracted using the doubleStarCommentBlockRegex.
 // See https://regexr.com/4k6l7
-const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm
+const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s-]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -239,6 +242,8 @@ export class CommentAnalyzer {
 	 */
 	classes = new Map<string, ClassMeta>()
 
+	functions = new Map<string, FunctionMeta>()
+
 	/**
 	 * @method analyze
 	 * @param {string} folder - The directory that contains whose source files
@@ -256,6 +261,12 @@ export class CommentAnalyzer {
 			let currentClass: string | undefined = undefined
 
 			for (const comment of file.comments) {
+				// Each comment can have a primary tag, with multiple support
+				// tags. For example, a comment may have a single @class primary
+				// tag, along with support tags like @extends and @abstract. Or
+				// for example a comment may have a primary @function tag and
+				// more than one @param support tags to describe a function's
+				// parameters.
 				let primaryTags: string[] = []
 
 				// vars for tracking an @class comment
@@ -268,11 +279,13 @@ export class CommentAnalyzer {
 				let access: 'public' | 'protected' | 'private' = 'public'
 				let foundAccess = false
 
-				// vars for tracking an @method comment
+				// vars for tracking an @method or @function comments
 				let method: string | undefined = undefined
+				let funktion: string | undefined = undefined
 				let params: Param[] = []
 				let returns: JSDocTypeAST | undefined = undefined
 
+				// constructor is a special method
 				let constructor = false
 
 				// vars for tracking an @property comment
@@ -280,10 +293,13 @@ export class CommentAnalyzer {
 				let type: JSDocTypeAST | undefined = undefined
 
 				for (const part of comment.content) {
+					// If we have part of a comment that isn't a tag (f.e. all
+					// the text before any tags are encountered in a comment)
 					if (typeof part === 'string') {
 						// not implemented yet
-						// These will be parts of a comment that aren't tags (f.e. all the text before any tags are encountered in a comment)
-					} else {
+					}
+					// Otherwise we have a JSDoc tag
+					else {
 						switch (part.tag) {
 							// @class comment ////////////////////////////////////////
 							case 'class': {
@@ -352,9 +368,37 @@ export class CommentAnalyzer {
 									break
 								}
 
+								if (part.type) {
+									warningForComment(
+										comment,
+										`The {type} field of a @method tag is ignored. Use @param and @return to define the method shape.`,
+									)
+								}
+
 								method = part.name
 								description = part.description
 
+								break
+							}
+
+							// @function comment ////////////////////////////////////////
+							case 'function': {
+								primaryTags.push(part.tag)
+
+								if (funktion) {
+									duplicateTagWarning(part, comment)
+									break
+								}
+
+								if (part.type) {
+									warningForComment(
+										comment,
+										`The {type} field of a @function tag is ignored. Use @param and @return to define the function shape.`,
+									)
+								}
+
+								funktion = part.name
+								description = part.description
 								break
 							}
 
@@ -362,12 +406,18 @@ export class CommentAnalyzer {
 								if (params.some(p => p.name === part.name)) {
 									warningForComment(
 										comment,
-										`Duplicate parameters found for an @method comment. Only the first will be used.`,
+										`Duplicate parameters found for an @method or @function comment. Only the first will be used.`,
 									)
 									break
 								}
 
-								if (!part.name) break
+								if (!part.name) {
+									warningForComment(
+										comment,
+										`A @parameter tag in the comment had no name field. Skipping.`,
+									)
+									break
+								}
 
 								params.push({
 									name: part.name,
@@ -383,6 +433,20 @@ export class CommentAnalyzer {
 								if (returns) {
 									duplicateTagWarning(part, comment)
 									break
+								}
+
+								if (part.name) {
+									warningForComment(
+										comment,
+										`The name field of a @return (or @returns) tag is ignored.`,
+									)
+								}
+
+								if (!part.type) {
+									warningForComment(
+										comment,
+										`A @return tag did not have a {type} field, skipping. Specify a return type, f.e. @return {number}.`,
+									)
 								}
 
 								returns = part.type
@@ -453,10 +517,10 @@ export class CommentAnalyzer {
 						)
 					} else {
 						// If we're not in the context of a class, we can't associate the method
-						// with any class. This assumes that a class comment was first
+						// with any class. The analysis assumes that a class comment was first
 						// encountered in the same file as the current method.
 						//
-						// TODO In the future we should support @memberOf which would allow a
+						// TODO In the future we should support things like @memberOf which would allow, for example, a
 						// method to be associated with a class regardless of source order.
 						orphanPropertyOrMethodWarning('method', comment, method)
 					}
@@ -481,19 +545,30 @@ export class CommentAnalyzer {
 					}
 				}
 
+				if (funktion) {
+					this.functions.set(funktion, {
+						file: file.file,
+						name: funktion,
+						description,
+						params,
+						returns,
+					})
+				}
+
 				// reset for the next comment
 				primaryTags = []
-				Class = ''
-				description = ''
+				Class = undefined
+				description = undefined
 				parentClasses = []
 				abstract = false
 				access = 'public'
 				foundAccess = false
-				method = ''
+				method = undefined
+				funktion = undefined
 				params = []
 				returns = undefined
 				constructor = false
-				property = ''
+				property = undefined
 				type = undefined
 			}
 
@@ -503,6 +578,7 @@ export class CommentAnalyzer {
 		return {
 			sourceFolder: folder,
 			classes: this.classes,
+			functions: this.functions,
 		}
 	}
 
@@ -577,7 +653,7 @@ function duplicateTagWarning(part: Tag, comment: Comment): void {
 	warningForComment(
 		comment,
 		`
-            More than one @${part.tag} tag was found in a comment.
+            More than one @${part.tag} primary tag was found in a comment.
             Only the first accurrence will be used.
         `,
 	)
@@ -650,26 +726,28 @@ function messageWithComment(message: string, comment: Comment): string {
 }
 
 /**
- * @typedef {{ file: string }} PrimaryItemMeta - The base Meta type for primary objects such as
- * classes, objects, functions, etc. These are associated with files where they
- * are found. Other things like methods or properties are associated with these
- * primary items.
+ * @typedef {{ file: string }} PrimaryItemMeta - The base Meta type for
+ * top-level items such as classes, objects, functions, etc. These primary
+ * items are associated with files where they are found. Other types of
+ * secondary items like methods or properties are associated with these primary
+ * items instead of with files.
  */
-type PrimaryItemMeta = {
+export type PrimaryItemMeta = {
 	file: string
 }
 
 /**
- * @typedef {{
+ * @typedef {PrimaryItemMeta & {
  *   name: string,
  *   description: string,
  *   extends: string[],
  *   abstract: boolean,
  *   methods: Record<string, MethodMeta>,
  *   properties: Record<string, PropertyMeta>
- * }} ClassMeta - Information that describes a class.
+ * }} ClassMeta - Information that describes a class (a top-level primary item
+ * that may contain secondary items that describe properties and methods).
  */
-type ClassMeta = PrimaryItemMeta & {
+export type ClassMeta = PrimaryItemMeta & {
 	name: string
 	description: string
 	extends: string[]
@@ -679,35 +757,50 @@ type ClassMeta = PrimaryItemMeta & {
 }
 
 /**
- * @typedef {{
+ * @typedef {{ access: 'public' | 'protected' | 'private' }} ClassElementMeta - Base type for secondary items such as properties or methods of a primary ClassMeta item.
+ */
+export type ClassElementMeta = {
+	access: 'public' | 'protected' | 'private'
+	// TODO abstract: boolean
+}
+
+/**
+ * @typedef {ClassElementMeta & {
  *   name: string,
  *   description: string,
- *   access: 'public' | 'protected' | 'private',
  *   type: JSDocTypeAST | undefined
  * }} MethodMeta
  */
-type PropertyMeta = {
+export type PropertyMeta = ClassElementMeta & {
 	name: string
 	description?: string
-	access: 'public' | 'protected' | 'private'
 	type?: JSDocTypeAST
 }
 
 /**
- * @typedef {{ name: string, description: string, access: 'public' | 'protected' | 'private', params: Param[], returns: JSDocTypeAST | undefined }} MethodMeta
+ * @typedef {{ name: string, description?: string, params: Param[], returns?: JSDocTypeAST }} FunctionLikeMeta - Base type for function-like items such as functions and methods.
  */
-type MethodMeta = {
+export type FunctionLikeMeta = {
 	name: string
 	description?: string
-	access: 'public' | 'protected' | 'private'
 	params: Param[]
 	returns?: JSDocTypeAST
 }
 
 /**
+ * @typedef {PrimaryItemMeta & FunctionLikeMeta} FunctionMeta
+ */
+export type FunctionMeta = PrimaryItemMeta & FunctionLikeMeta
+
+/**
+ * @typedef {ClassElementMeta & FunctionLikeMeta} MethodMeta
+ */
+export type MethodMeta = ClassElementMeta & FunctionLikeMeta
+
+/**
  * @typedef {{ name: string, description: string, type: JSDocTypeAST | undefined }} Param
  */
-type Param = {
+export type Param = {
 	name: string
 	description?: string
 	type?: JSDocTypeAST
@@ -717,10 +810,12 @@ type Param = {
  * @typedef DocsMeta - The overall information that was gleaned from source comments.
  * @property {string} sourceFolder - The root folder of the project being scanned for doc comments.
  * @property {Map<string, ClassMeta>} classes - A map of class names to ClassMeta objects with details about the classes documented in the source.
+ * @property {Map<string, FunctionMeta>} functions - A map of class names to ClassMeta objects with details about the classes documented in the source.
  */
-type DocsMeta = {
+export type DocsMeta = {
 	sourceFolder: string
 	classes: Map<string, ClassMeta>
+	functions: Map<string, FunctionMeta>
 }
 
 /**
