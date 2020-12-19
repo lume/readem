@@ -1,6 +1,6 @@
 {
 	"name": "readem",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"description": "Read the !@#$%^& docs!",
 	"type": "module",
 	"types": "./dist/index.d.ts",
