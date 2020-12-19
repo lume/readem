@@ -15,7 +15,9 @@ Features:
     folder (and subfolders) using the `FolderScanner` class. This gives you a JS
     object with all the information from every tag. This does not do anything
     more than that.
-    -   The JSDoc syntax is loose. _All_ JSDoc tags follow the format `@thetag {type} name - and a description` where all fields are optional. The object literal returned for each tag is simple, something like the following (TODO expand once we use readem to generate readem's docs):
+
+    The JSDoc syntax is loose. _All_ JSDoc tags follow the format `@thetag {type} name - and a description` where all fields are optional. The object literal returned for each tag is simple, something like the following (TODO expand once we use readem to generate readem's docs):
+
     ```js
     // Map of file to array of comments (in order they are found in their file)
     return {
@@ -39,6 +41,7 @@ Features:
     	],
     }
     ```
+
 -   The `CommentAnalyzer` class takes things one step further: it builds on top of
     `FolderScanner` to analyze all the extracted JSDoc tags and does things like create JS
     objects representing information for classes (including their properties and
@@ -133,7 +136,12 @@ Features:
     TODO The analysis is fairly simple for now, and convers the most basic
     features of classes and functions: only classes and functions are
     analyzed, and basically what you see above is all the information that is
-    returned. We could add more things like `@
+    returned. We could add support for class concepts like
+    `@packageprotected`, `@final`, `@friendof`, etc, things like
+    `@deprecated` for both classes and functions, or new top-level things
+    like `@typedef` for defining non-runtime types.
+
+    Please open a request if you have any ideas or needs!
 
 -   The `MarkdownRenderer` class goes even one step further, but this class is
     the most incomplete class at the moment. Given what `CommentAnalyzer` spits
