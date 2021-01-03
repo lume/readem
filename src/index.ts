@@ -249,15 +249,20 @@ export class CommentAnalyzer {
 	 * @param {string} folder - The directory that contains whose source files
 	 * will be scanned for JSDoc-like comments and then analyzed for
 	 * documentation.
+	 * @param {(path: string) => boolean} filter - A function that returns `true`
+	 * if a file should be included, or false otherwise.
 	 * @returns {Promise<undefined>}
 	 */
 	// TODO filter param
-	async analyze(folder: string, _filter?: RegExp): Promise<DocsMeta> {
+	async analyze(folder: string, filter?: (path: string) => boolean): Promise<DocsMeta> {
 		folder = folder.endsWith('/') ? folder : folder + '/'
 
 		const result = await this.scanner.scanFolder(folder)
 
 		for (const file of result) {
+			// TODO pass along to at-at/Walker
+			if (filter && !filter(file.file)) continue
+
 			let currentClass: string | undefined = undefined
 
 			for (const comment of file.comments) {
