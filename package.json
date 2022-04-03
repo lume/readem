@@ -62,7 +62,7 @@
 		"highlight.js": "^8.4.0",
 		"lume": "0.0.0-rc.0",
 		"jsdoctypeparser": "^6.1.0",
-		"lowclass": "^4.9.3",
+		"lowclass": "^5.0.0",
 		"mkdirp": "^0.5.1",
 		"rndm": "^1.1.0",
 		"serve": "^1.4.0"
