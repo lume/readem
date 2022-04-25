@@ -68,7 +68,7 @@
 		"serve": "^1.4.0"
 	},
 	"devDependencies": {
-		"@lume/cli": "^0.3.0",
+		"@lume/cli": "^0.8.0",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^13.1.8",
 		"prettier": "^1.19.1",
