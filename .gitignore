@@ -1,7 +1,6 @@
 node_modules
 # npmrc already specifies not to use package-lock, but tools like Lerna in the umbrella repo still add it, so ignore it.
 package-lock.json
-dist/
 npm-debug.log
 *.log
 .vscode
