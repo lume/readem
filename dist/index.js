@@ -57,7 +57,7 @@ export class FolderScanner extends FileScanner {
                     }));
                 }
                 await Promise.all(promises);
-                resolve(nonDirectories);
+                resolve(nonDirectories.sort());
             });
         });
         const promises = [];
@@ -292,11 +292,12 @@ export class CommentAnalyzer {
             }
             currentClass = '';
         }
-        return {
+        const docsMeta = {
             sourceFolder: folder,
             classes: this.classes,
             functions: this.functions,
         };
+        return docsMeta;
     }
     trackClass(Class, meta) {
         const _meta = Object.assign({
@@ -386,13 +387,11 @@ function propertyOrMethodAlreadyExistsWarning(tag, comment, name, Class) {
             more comments with an @${tag} tag defining the same
             ${tag} name. Only the first definition will be used.
 
-            ${tag === 'method'
-        ? `
-                        If you meant to define an overloaded method, prefer to
-                        use type unions in the type definitions of your method
-                        parameters, all within a single @method comment.
-                    `
-        : ''}
+            ${tag === 'method' ? `
+				If you meant to define an overloaded method, prefer to
+				use type unions in the type definitions of your method
+				parameters, all within a single @method comment.
+			` : ''}
         `);
 }
 function warningForComment(comment, message) {

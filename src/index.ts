@@ -113,7 +113,7 @@ export class FolderScanner extends FileScanner {
 
 				await Promise.all(promises)
 
-				resolve(nonDirectories)
+				resolve(nonDirectories.sort())
 			})
 		})
 
@@ -211,7 +211,8 @@ const leadingStarsRegex = /^[^\S\r\n]*\*[^\S\r\n]?/gm
 // A regex to detect JSDoc tags in the content of /** */ comment. This is used
 // after the content has been extracted using the doubleStarCommentBlockRegex.
 // See https://regexr.com/4k6l7
-const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s-]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm
+const jsDocTagRegex =
+	/(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s-]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -253,7 +254,6 @@ export class CommentAnalyzer {
 	 * if a file should be included, or false otherwise.
 	 * @returns {Promise<undefined>}
 	 */
-	// TODO filter param
 	async analyze(folder: string, filter?: (path: string) => boolean): Promise<DocsMeta> {
 		folder = folder.endsWith('/') ? folder : folder + '/'
 
@@ -417,10 +417,7 @@ export class CommentAnalyzer {
 								}
 
 								if (!part.name) {
-									warningForComment(
-										comment,
-										`A @parameter tag in the comment had no name field. Skipping.`,
-									)
+									warningForComment(comment, `A @parameter tag in the comment had no name field. Skipping.`)
 									break
 								}
 
@@ -441,10 +438,7 @@ export class CommentAnalyzer {
 								}
 
 								if (part.name) {
-									warningForComment(
-										comment,
-										`The name field of a @return (or @returns) tag is ignored.`,
-									)
+									warningForComment(comment, `The name field of a @return (or @returns) tag is ignored.`)
 								}
 
 								if (!part.type) {
@@ -580,11 +574,13 @@ export class CommentAnalyzer {
 			currentClass = ''
 		}
 
-		return {
+		const docsMeta: DocsMeta = {
 			sourceFolder: folder,
 			classes: this.classes,
 			functions: this.functions,
 		}
+
+		return docsMeta
 	}
 
 	private trackClass(Class: string, meta: Partial<ClassMeta>) {
@@ -703,21 +699,19 @@ function propertyOrMethodAlreadyExistsWarning(
 ) {
 	warningForComment(
 		comment,
+		// prettier-ignore
+		// prettier fails badly here
 		`
             A ${tag} called '${name}' is already defined for the
             class '${Class}'. This means you probably have two or
             more comments with an @${tag} tag defining the same
             ${tag} name. Only the first definition will be used.
 
-            ${
-				tag === 'method'
-					? `
-                        If you meant to define an overloaded method, prefer to
-                        use type unions in the type definitions of your method
-                        parameters, all within a single @method comment.
-                    `
-					: ''
-			}
+            ${tag === 'method' ? `
+				If you meant to define an overloaded method, prefer to
+				use type unions in the type definitions of your method
+				parameters, all within a single @method comment.
+			` : ''}
         `,
 	)
 }
