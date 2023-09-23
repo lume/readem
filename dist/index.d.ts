@@ -79,6 +79,6 @@ export declare class MarkdownRenderer {
     renderProperty(propertyName: string, propertyMeta: PropertyMeta, _docsMeta: DocsMeta): string;
     renderMethod(methodName: string, methodMeta: MethodMeta, _docsMeta: DocsMeta): string;
 }
-export declare const version = "0.2.7";
+export declare const version = "0.2.10";
 export {};
 //# sourceMappingURL=index.d.ts.map
