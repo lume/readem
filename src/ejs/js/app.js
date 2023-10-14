@@ -130,10 +130,10 @@ ctx.add(layout)
 /*
  * Do stuff when the things are ready.
  */
-content.on('deploy', function() {
+content.on('deploy', function () {
 	var codes = document.querySelectorAll('pre code')
 
-	Array.prototype.forEach.call(codes, function(el) {
+	Array.prototype.forEach.call(codes, function (el) {
 		hljs.highlightBlock(el)
 	})
 })

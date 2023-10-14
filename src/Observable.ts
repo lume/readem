@@ -57,9 +57,9 @@ export function ObservableMixin<T extends Constructor>(Base: T): Constructor<Obs
 
 			if (!callbacks) return
 
-			let tuple: typeof callbacks[0]
-			let callback: typeof callbacks[0][0]
-			let context: typeof callbacks[0][1]
+			let tuple: (typeof callbacks)[0]
+			let callback: (typeof callbacks)[0][0]
+			let context: (typeof callbacks)[0][1]
 
 			for (let i = 0, len = callbacks.length; i < len; i += 1) {
 				tuple = callbacks[i]

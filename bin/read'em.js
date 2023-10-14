@@ -27,7 +27,7 @@ var webpack = require('webpack')
 function getVersion(callback) {
 	var packageJson = [path.dirname(path.dirname(require.main.filename)), 'package.json'].join('/')
 
-	fs.readFile(packageJson, function(err, data) {
+	fs.readFile(packageJson, function (err, data) {
 		if (err) throw new Error(err)
 		callback(JSON.parse(data).version)
 	})
@@ -40,11 +40,9 @@ function getVersion(callback) {
  * @param {string} version The version that gets shown at the command line by commander.
  */
 function setUpCli(version) {
-	app.version(version)
-		.option(
-			'-s, --source <source>',
-			'The directory containing source files to generate docs for. Defaults to ./src.',
-		)
+	app
+		.version(version)
+		.option('-s, --source <source>', 'The directory containing source files to generate docs for. Defaults to ./src.')
 		.option(
 			'-o, --output <destination>',
 			'The output directory for the docs. Defaults to a random folder in /tmp/readem.',
@@ -80,9 +78,9 @@ function getDox(dir, options, callback) {
 
 	// TODO: upgrade at-at so that it takes a filter, and read docs for all
 	// files that match the filter, not just .js files.
-	atat.walk(dir, function(files) {
+	atat.walk(dir, function (files) {
 		// filter the files in the dir so we have only files ending with .js
-		files = files.filter(function(file) {
+		files = files.filter(function (file) {
 			var extension = 'js'
 			return !!file.match(new RegExp('^.*\\.' + extension + '$'))
 		})
@@ -90,8 +88,8 @@ function getDox(dir, options, callback) {
 		if (files.length) callback = callAfter(files.length, callback).bind(this)
 		else callback(null, new Error(' --- No files found!'))
 
-		files.forEach(function(file) {
-			fs.readFile(file, function(err, data) {
+		files.forEach(function (file) {
+			fs.readFile(file, function (err, data) {
 				if (err) throw new Error(err)
 
 				docs.push({
@@ -114,15 +112,15 @@ function getDox(dir, options, callback) {
 function serve(dir, port) {
 	var server = spawn(path.resolve(__dirname, '../node_modules/.bin/serve'), [dir, '-p', port])
 
-	server.stdout.on('data', function(data) {
+	server.stdout.on('data', function (data) {
 		console.log(data.toString())
 	})
 
-	server.stderr.on('data', function(data) {
+	server.stderr.on('data', function (data) {
 		console.log('server err:', data.toString())
 	})
 
-	server.on('close', function(code) {
+	server.on('close', function (code) {
 		console.log('server exited!')
 	})
 }
@@ -141,27 +139,27 @@ function serve(dir, port) {
 function genDocs(dox, options, callback) {
 	async.waterfall(
 		[
-			function(done) {
+			function (done) {
 				async.parallel(
 					{
-						mkdir: function(done) {
+						mkdir: function (done) {
 							// make the output directory.
 							mkdirp(options.dest, done)
 						},
-						template: function(done) {
+						template: function (done) {
 							// get the template, browserify the app file, then render the template.
 							fs.readFile(options.template, done)
 						},
 					},
-					function(err, results) {
+					function (err, results) {
 						done(err, results.template)
 					},
 				)
 			},
-			function(template, done) {
+			function (template, done) {
 				async.parallel(
 					{
-						bundle: function(done) {
+						bundle: function (done) {
 							var appFile = path.resolve(__dirname, '../src/ejs/js/app.js')
 							var b = browserify()
 
@@ -171,10 +169,10 @@ function genDocs(dox, options, callback) {
 								.transform(to5ify)
 								.transform(famousify)
 								.transform(cssify)
-								.bundle(function(err, app) {
+								.bundle(function (err, app) {
 									if (err) throw new Error('Error bundling app file ' + appFile + '.\n' + err)
 
-									fs.writeFile([options.dest, 'app.js'].join('/'), app, function(err) {
+									fs.writeFile([options.dest, 'app.js'].join('/'), app, function (err) {
 										if (err) throw new Error('Error writing app file ' + appFile + '. ' + err)
 										done()
 									})
@@ -194,10 +192,10 @@ function genDocs(dox, options, callback) {
 							//})
 							//})
 						},
-						dox: function(done) {
+						dox: function (done) {
 							var whenFinished = callAfter(dox.length, done)
 
-							dox.forEach(function(dox) {
+							dox.forEach(function (dox) {
 								var rendered = ejs.render(template.toString(), {
 									dox: dox,
 								})
@@ -207,7 +205,7 @@ function genDocs(dox, options, callback) {
 								relativeFile = [relativeFile, 'html'].join('.')
 								mkdirp.sync([options.dest, path.dirname(relativeFile)].join('/'))
 
-								fs.writeFile([options.dest, relativeFile].join('/'), rendered, function(err) {
+								fs.writeFile([options.dest, relativeFile].join('/'), rendered, function (err) {
 									if (err) throw new Error('Error writing doc file for ' + dox.file + '.')
 									whenFinished()
 								})
@@ -226,7 +224,7 @@ function genDocs(dox, options, callback) {
  * ignore
  */
 console.log(' --- Generating docs...')
-getVersion(function(version) {
+getVersion(function (version) {
 	setUpCli(version)
 
 	getDox(
@@ -234,7 +232,7 @@ getVersion(function(version) {
 		{
 			skipSingleStar: !app.singleStar,
 		},
-		function(dox) {
+		function (dox) {
 			if (dox)
 				genDocs(
 					dox,
@@ -244,7 +242,7 @@ getVersion(function(version) {
 						dest: app.output,
 						source: app.source,
 					},
-					function() {
+					function () {
 						console.log(' --- Done.')
 						serve(app.output, app.port)
 					},
