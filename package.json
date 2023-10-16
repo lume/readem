@@ -9,9 +9,7 @@
 		".": "./dist/index.js",
 		"./": "./dist/"
 	},
-	"bin": {
-		"readem": "bin/read'em.js"
-	},
+	"bin": "bin/read'em.js",
 	"scripts": {
 		"LUME SCRIPTS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX": "",
 		"clean": "lume clean",
@@ -58,9 +56,9 @@
 		"dox": "^0.8.1",
 		"ejs": "^2.2.4",
 		"highlight.js": "^8.4.0",
-		"lume": "0.0.0-rc.0",
 		"jsdoctypeparser": "^6.1.0",
 		"lowclass": "^5.0.0",
+		"lume": "0.0.0-rc.0",
 		"mkdirp": "^0.5.1",
 		"rndm": "^1.1.0",
 		"serve": "^1.4.0"
