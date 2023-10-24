@@ -514,5 +514,5 @@ ${methodMeta.description}
         `;
     }
 }
-export const version = '0.2.10';
+export const version = '0.2.11';
 //# sourceMappingURL=index.js.map
