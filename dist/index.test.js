@@ -1,4 +1,4 @@
-import { FileScanner, FolderScanner, CommentAnalyzer, MarkdownRenderer } from './index';
+import { FileScanner, FolderScanner, CommentAnalyzer, MarkdownRenderer } from './index.js';
 describe('readem', () => {
     it('has classes', () => {
         expect(FileScanner).toBeInstanceOf(Function);
