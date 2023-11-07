@@ -78,11 +78,9 @@ const doubleStarCommentBlockRegex = /\/\*\*((?:\s|\S)*?)\*\//g;
 const leadingStarsRegex = /^[^\S\r\n]*\*[^\S\r\n]?/gm;
 const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s-]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm;
 export class CommentAnalyzer {
-    constructor() {
-        this.scanner = new FolderScanner();
-        this.classes = new Map();
-        this.functions = new Map();
-    }
+    scanner = new FolderScanner();
+    classes = new Map();
+    functions = new Map();
     async analyze(folder, filter) {
         folder = folder.endsWith('/') ? folder : folder + '/';
         const result = await this.scanner.scanFolder(folder);

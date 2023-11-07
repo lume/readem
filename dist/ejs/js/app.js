@@ -1,7 +1,7 @@
 import 'famous/core/famous.css';
 import '../../styles/app.css';
-import 'famous/core/Surface';
-import 'famous/views/Scrollview';
+import Surface from 'famous/core/Surface';
+import Scrollview from 'famous/views/Scrollview';
 import Plane from 'lume/Plane';
 import PushMenuLayout from 'lume/PushMenuLayout';
 import { contextWithPerspective } from 'lume/utils';

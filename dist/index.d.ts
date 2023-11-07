@@ -5,20 +5,20 @@ export declare class FileScanner extends Observable {
 export declare class FolderScanner extends FileScanner {
     scanFolder(folder: string): Promise<FileComments[]>;
 }
-declare type Comment = {
+type Comment = {
     source: string;
     content: CommentContent;
 };
-declare type CommentContent = Array<Tag | string>;
-declare type Tag = {
+type CommentContent = Array<Tag | string>;
+type Tag = {
     source: string;
     tag: string;
     type: JSDocTypeAST | undefined;
     name: string | undefined;
     description: string | undefined;
 };
-declare type JSDocTypeAST = Record<string, any>;
-declare type FileComments = {
+type JSDocTypeAST = Record<string, any>;
+type FileComments = {
     file: string;
     comments: Comment[];
 };
@@ -31,10 +31,10 @@ export declare class CommentAnalyzer {
     private trackMethod;
     private trackProperty;
 }
-export declare type PrimaryItemMeta = {
+export type PrimaryItemMeta = {
     file: string;
 };
-export declare type ClassMeta = PrimaryItemMeta & {
+export type ClassMeta = PrimaryItemMeta & {
     name: string;
     description: string;
     extends: string[];
@@ -42,28 +42,28 @@ export declare type ClassMeta = PrimaryItemMeta & {
     properties: Record<string, PropertyMeta>;
     methods: Record<string, MethodMeta>;
 };
-export declare type ClassElementMeta = {
+export type ClassElementMeta = {
     access: 'public' | 'protected' | 'private';
 };
-export declare type PropertyMeta = ClassElementMeta & {
+export type PropertyMeta = ClassElementMeta & {
     name: string;
     description?: string;
     type?: JSDocTypeAST;
 };
-export declare type FunctionLikeMeta = {
+export type FunctionLikeMeta = {
     name: string;
     description?: string;
     params: Param[];
     returns?: JSDocTypeAST;
 };
-export declare type FunctionMeta = PrimaryItemMeta & FunctionLikeMeta;
-export declare type MethodMeta = ClassElementMeta & FunctionLikeMeta;
-export declare type Param = {
+export type FunctionMeta = PrimaryItemMeta & FunctionLikeMeta;
+export type MethodMeta = ClassElementMeta & FunctionLikeMeta;
+export type Param = {
     name: string;
     description?: string;
     type?: JSDocTypeAST;
 };
-export declare type DocsMeta = {
+export type DocsMeta = {
     sourceFolder: string;
     classes: Map<string, ClassMeta>;
     functions: Map<string, FunctionMeta>;

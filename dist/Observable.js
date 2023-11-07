@@ -1,10 +1,6 @@
 import { Mixin, Constructor } from 'lowclass';
 export function ObservableMixin(Base) {
     class Observable extends Constructor(Base) {
-        constructor() {
-            super(...arguments);
-            this.__eventMap = null;
-        }
         on(eventName, callback, context) {
             let eventMap = this.__eventMap;
             if (!eventMap)
@@ -56,6 +52,7 @@ export function ObservableMixin(Base) {
         triggerEvent(eventName, data) {
             return this.emit(eventName, data);
         }
+        __eventMap = null;
     }
     return Observable;
 }

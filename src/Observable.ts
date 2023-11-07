@@ -1,4 +1,4 @@
-import {Mixin, MixinResult, Constructor} from 'lowclass'
+import {Mixin, type MixinResult, Constructor} from 'lowclass'
 
 // TODO strongly typed events. Combine with stuff in Events.ts
 
