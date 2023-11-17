@@ -177,20 +177,6 @@ function genDocs(dox, options, callback) {
 										done()
 									})
 								})
-
-							//CONTINUE: convert to webpack.
-							//b.add(appFile)
-							//.transform(to5ify)
-							//.transform(famousify)
-							//.transform(cssify)
-							//.bundle(function(err, app) {
-							//if (err) throw new Error('Error bundling app file '+appFile+'.\n'+err)
-
-							//fs.writeFile([options.dest, 'app.js'].join('/'), app, function(err) {
-							//if (err) throw new Error('Error writing app file '+appFile+'. '+err)
-							//done()
-							//})
-							//})
 						},
 						dox: function (done) {
 							var whenFinished = callAfter(dox.length, done)

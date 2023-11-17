@@ -53,7 +53,7 @@
 		"ejs": "^2.2.4",
 		"highlight.js": "^8.4.0",
 		"jsdoctypeparser": "^6.1.0",
-		"lowclass": "^6.0.0",
+		"lowclass": "^7.0.0",
 		"lume": "0.0.0-rc.0",
 		"mkdirp": "^0.5.1",
 		"rndm": "^1.1.0",
