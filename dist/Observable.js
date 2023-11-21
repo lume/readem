@@ -10,6 +10,7 @@ export function ObservableMixin(Base) {
                 eventMap.set(eventName, (callbacks = []));
             if (typeof callback == 'function')
                 callbacks.push([callback, context]);
+            // save callback associated with context
             else
                 throw new Error('Expected a function in callback argument of Observable#on.');
         }
@@ -46,9 +47,11 @@ export function ObservableMixin(Base) {
                 callback.call(context, data);
             }
         }
+        // alias for emit
         trigger(eventName, data) {
             return this.emit(eventName, data);
         }
+        // alias for emit
         triggerEvent(eventName, data) {
             return this.emit(eventName, data);
         }

@@ -3,24 +3,42 @@ import * as path from 'path';
 import walker from 'at-at';
 import mkdirp from 'mkdirp';
 import jsdocTypeParse from 'jsdoctypeparser';
+// TODO, import Observable from a separate package linked by Rush.js
 import { Observable } from './Observable.js';
+/**
+ * @class FileScanner - Scans files for JSDoc-style comments, outputting usable
+ * objects representing the found tags.
+ * @extends Observable
+ */
 export class FileScanner extends Observable {
+    /**
+     * @method scanFile - Scans a file and triggers the 'comment' for each comment
+     * that the scanner parsers while scanning the file.
+     * @param {string} file - The file to scan. If not absolute, will be
+     * relative to the current working directory.
+     * @param {string} [charset] - The character set of the file. Defaults to "utf8"
+     * @returns {Promise<Array<Comment>>} - A promise for when done scanning the file.
+     */
     async scanFile(file, charset = 'utf8') {
+        // TODO upgrade to using a lexer to scan a stream while reading the file
         let content = await fs.promises.readFile(path.resolve(file), { encoding: charset });
         if (typeof content !== 'string')
             content = content.toString();
         const comments = [];
         const re = doubleStarCommentBlockRegex;
         let commentMatch;
+        // extract double-star comments
         while ((commentMatch = re.exec(content))) {
             const originalComment = commentMatch[0];
             const comment = {
                 source: originalComment,
                 content: [],
             };
+            // strip the leading stars, if any
             const commentContent = commentMatch[1].replace(leadingStarsRegex, '');
             const re = jsDocTagRegex;
             let tagMatch;
+            // get each part of each JSDoc tag
             while ((tagMatch = re.exec(commentContent))) {
                 let type;
                 try {
@@ -44,7 +62,26 @@ export class FileScanner extends Observable {
         return comments;
     }
 }
+/*
+ * - best man
+ * - ring bearer
+ * - officiator
+ * - grooms men
+ * - flower boy
+ */
+/**
+ * @class FolderScanner - Scans specified folders for JSDoc-style comments within files.
+ * @extends FileScanner
+ */
 export class FolderScanner extends FileScanner {
+    /**
+     * @method scanFolder - Scans a folder and all sub-folders any level deep
+     * for all JSDoc-like comments in files.
+     * @param {string} folder - The folder to scan.
+     * @returns {Promise<FileComments[]>} - A promise that resolves to an array
+     * of objects, each one containing the normalized comments found in a file
+     * of the given folder.
+     */
     async scanFolder(folder) {
         const files = await new Promise(resolve => {
             walker.walk(folder, async (files) => {
@@ -74,40 +111,94 @@ export class FolderScanner extends FileScanner {
         return Promise.all(promises);
     }
 }
+// A regex for detecting double-star /** */ comments. See https://regexr.com/4k6je
 const doubleStarCommentBlockRegex = /\/\*\*((?:\s|\S)*?)\*\//g;
+// A regex to detect the leading asterisks of multiline JSDoc comments. See
+// https://regexr.com/4k6k3
 const leadingStarsRegex = /^[^\S\r\n]*\*[^\S\r\n]?/gm;
+// A regex to detect JSDoc tags in the content of /** */ comment. This is used
+// after the content has been extracted using the doubleStarCommentBlockRegex.
+// See https://regexr.com/4k6l7
 const jsDocTagRegex = /(?<=^[^\S\r\n]*)(?:(?:@([a-zA-Z]+))(?:[^\S\r\n]*(?:{(.*)}))?(?:[^\S\r\n]*((?:[^@\s-]|@@)+))?(?:[^\S\r\n]*(?:-[^\S\r\n]*)?((?:[^@]|@@)*))?)/gm;
+///////////////////////////////////////////////////////////////////////////////////
+// const scanner = new FileScanner()
+// scanner.on('comment', (comment: Comment) => {
+//     console.log(comment)
+// })
+// scanner.scanFile('./src/core/TreeNode.ts')
+/**
+ * @class Docs - scans a directory for comments, analyzes them to create
+ * hierarchy of classes, etc, and finally outputs them using a template.
+ */
 export class CommentAnalyzer {
+    /**
+     * @property {FolderScanner} scanner - The scanner used to scan the
+     * filesystem for comments in source files.
+     */
     scanner = new FolderScanner();
+    /**
+     * @property {Map<string, ClassMeta>} classes - contains information for
+     * classes that are documented in the scanned comments. This is empty at
+     * first, and will have been populated after a call to the `.analyze()`
+     * method on a directory containing documented source has completed.
+     * `classes` is a map of class name to `ClassMeta` object containing
+     * information about the class. See the `ClassMeta` type for details.
+     */
     classes = new Map();
     functions = new Map();
+    /**
+     * @method analyze
+     * @param {string} folder - The directory that contains whose source files
+     * will be scanned for JSDoc-like comments and then analyzed for
+     * documentation.
+     * @param {(path: string) => boolean} filter - A function that returns `true`
+     * if a file should be included, or false otherwise.
+     * @returns {Promise<undefined>}
+     */
     async analyze(folder, filter) {
         folder = folder.endsWith('/') ? folder : folder + '/';
         const result = await this.scanner.scanFolder(folder);
         for (const file of result) {
+            // TODO pass along to at-at/Walker
             if (filter && !filter(file.file))
                 continue;
             let currentClass = undefined;
             for (const comment of file.comments) {
+                // Each comment can have a primary tag, with multiple support
+                // tags. For example, a comment may have a single @class primary
+                // tag, along with support tags like @extends and @abstract. Or
+                // for example a comment may have a primary @function tag and
+                // more than one @param support tags to describe a function's
+                // parameters.
                 let primaryTags = [];
+                // vars for tracking an @class comment
                 let Class = undefined;
                 let description = undefined;
                 let parentClasses = [];
                 let abstract = false;
+                // for methods and properties
                 let access = 'public';
                 let foundAccess = false;
+                // vars for tracking an @method or @function comments
                 let method = undefined;
                 let funktion = undefined;
                 let params = [];
                 let returns = undefined;
+                // constructor is a special method
                 let constructor = false;
+                // vars for tracking an @property comment
                 let property = undefined;
                 let type = undefined;
                 for (const part of comment.content) {
+                    // If we have part of a comment that isn't a tag (f.e. all
+                    // the text before any tags are encountered in a comment)
                     if (typeof part === 'string') {
+                        // not implemented yet
                     }
+                    // Otherwise we have a JSDoc tag
                     else {
                         switch (part.tag) {
+                            // @class comment ////////////////////////////////////////
                             case 'class': {
                                 primaryTags.push(part.tag);
                                 if (Class) {
@@ -119,7 +210,7 @@ export class CommentAnalyzer {
                                 description = part.description;
                                 break;
                             }
-                            case 'inherits':
+                            case 'inherits': // @inherits is alias of @extends
                             case 'extends': {
                                 if (part.name && !parentClasses.includes(part.name))
                                     parentClasses.push(part.name);
@@ -129,6 +220,7 @@ export class CommentAnalyzer {
                                 abstract = true;
                                 break;
                             }
+                            // for @property, @method, or @constructor comments /////////////////////
                             case 'public':
                             case 'protected':
                             case 'private': {
@@ -140,6 +232,7 @@ export class CommentAnalyzer {
                                 foundAccess = true;
                                 break;
                             }
+                            // @method comment ////////////////////////////////////////
                             case 'constructor': {
                                 primaryTags.push(part.tag);
                                 if (constructor) {
@@ -151,6 +244,7 @@ export class CommentAnalyzer {
                                 description = part.description;
                                 break;
                             }
+                            // @method comment ////////////////////////////////////////
                             case 'method': {
                                 primaryTags.push(part.tag);
                                 if (method) {
@@ -164,6 +258,7 @@ export class CommentAnalyzer {
                                 description = part.description;
                                 break;
                             }
+                            // @function comment ////////////////////////////////////////
                             case 'function': {
                                 primaryTags.push(part.tag);
                                 if (funktion) {
@@ -193,7 +288,7 @@ export class CommentAnalyzer {
                                 });
                                 break;
                             }
-                            case 'return':
+                            case 'return': // @return is alias of @returns
                             case 'returns': {
                                 if (returns) {
                                     duplicateTagWarning(part, comment);
@@ -208,6 +303,7 @@ export class CommentAnalyzer {
                                 returns = part.type;
                                 break;
                             }
+                            // @property comment ////////////////////////////////////////
                             case 'property': {
                                 primaryTags.push(part.tag);
                                 if (property) {
@@ -219,13 +315,22 @@ export class CommentAnalyzer {
                                 type = part.type;
                                 break;
                             }
+                            // @method comment ////////////////////////////////////////
                             case 'typedef': {
                                 description = part.description;
+                                // TODO
                                 break;
                             }
+                            // TODO, for certain cases, like if we change from a
+                            // @class context to an @object context or similar,
+                            // we need to reset currentClass
+                            // TODO, we may need a way to signal entering a
+                            // nested class context (or similar for other types
+                            // of documentables).
                         }
                     }
                 }
+                // We can only have one primary tag per comment. (f.e. @class, @method)
                 if (primaryTags.length > 2)
                     multiplePrimaryTagsWarning(comment, primaryTags);
                 if (Class) {
@@ -248,6 +353,12 @@ export class CommentAnalyzer {
                         }, comment);
                     }
                     else {
+                        // If we're not in the context of a class, we can't associate the method
+                        // with any class. The analysis assumes that a class comment was first
+                        // encountered in the same file as the current method.
+                        //
+                        // TODO In the future we should support things like @memberOf which would allow, for example, a
+                        // method to be associated with a class regardless of source order.
                         orphanPropertyOrMethodWarning('method', comment, method);
                     }
                 }
@@ -261,6 +372,7 @@ export class CommentAnalyzer {
                         }, comment);
                     }
                     else {
+                        // TODO same as with previous block regarding method, but with properties
                         orphanPropertyOrMethodWarning('property', comment, property);
                     }
                 }
@@ -273,6 +385,7 @@ export class CommentAnalyzer {
                         returns,
                     });
                 }
+                // reset for the next comment
                 primaryTags = [];
                 Class = undefined;
                 description = undefined;
@@ -330,6 +443,7 @@ export class CommentAnalyzer {
             warningForComment(comment, `Not in context of a class for method "${method}"`);
             return;
         }
+        // if a method defintiion already exists, skip this one. We only accept one definition.
         if (classMeta.methods.hasOwnProperty(method)) {
             propertyOrMethodAlreadyExistsWarning('method', comment, Class, method);
             return;
@@ -342,6 +456,7 @@ export class CommentAnalyzer {
             warningForComment(comment, `Not in context of a class for property "${property}"`);
             return;
         }
+        // if a method definition already exists, skip this one. We only accept one method definition per class.
         if (classMeta.methods.hasOwnProperty(property)) {
             propertyOrMethodAlreadyExistsWarning('property', comment, Class, property);
             return;
@@ -379,7 +494,10 @@ function orphanPropertyOrMethodWarning(tag, comment, name) {
         `);
 }
 function propertyOrMethodAlreadyExistsWarning(tag, comment, name, Class) {
-    warningForComment(comment, `
+    warningForComment(comment, 
+    // prettier-ignore
+    // prettier fails badly here
+    `
             A ${tag} called '${name}' is already defined for the
             class '${Class}'. This means you probably have two or
             more comments with an @${tag} tag defining the same
@@ -398,12 +516,38 @@ function warningForComment(comment, message) {
 function messageWithComment(message, comment) {
     return trim(message) + '\nThe comment was:\n\n' + reIndentComment(comment.source);
 }
+/**
+ * Converts something like
+ *
+ *        This is a paragraph
+ *           of text with some random indentation
+ *       that we want to get rid of.
+ *
+ * to
+ *
+ * This is a paragraph
+ * of text with some random indentation
+ * that we want to get rid of.
+ */
 function trim(s) {
     return s
         .split('\n')
         .map(l => l.trim())
         .join('\n');
 }
+// converts something like
+//
+// /*
+//         * @foo {number}
+//         * @bar
+//         */
+//
+// to
+//
+// /*
+//  * @foo {number}
+//  * @bar
+//  */
 function reIndentComment(source) {
     return source
         .split('\n')
@@ -433,6 +577,9 @@ export class MarkdownRenderer {
             const outputDir = path.join(destination, relativeSourceDirectory);
             const outputFile = path.join(outputDir, className + '.md');
             promises.push(promise(mkdirp, outputDir).then(() => fs.promises.writeFile(outputFile, output)));
+            // this runs synchronously now in the same tick, while the directory
+            // is being made in the previous expression, thus always finishes
+            // first.
             const output = this.renderClass(className, classMeta, docsMeta);
         }
         await Promise.all(promises);
@@ -443,11 +590,15 @@ export class MarkdownRenderer {
             dest = path.resolve(process.cwd(), dest);
         return dest;
     }
+    // TODO a numberOfLevels option, to specify how many sub-folders to show in
+    // the menu. Currently just showing the top-level folder.
     renderNav(docsMeta, options) {
         let result = '';
         const structure = {};
         for (const [, classMeta] of docsMeta.classes) {
             const relative = path.relative(docsMeta.sourceFolder, classMeta.file);
+            // the top-level folder
+            // TODO this doesn't handle files in the folder.
             const section = relative.split(path.sep)[0];
             if (!structure[section])
                 structure[section] = [];
@@ -465,18 +616,26 @@ export class MarkdownRenderer {
         }
         return result;
     }
+    //////////////////////////////////////////
     renderClass(className, classMeta, docsMeta) {
         const parents = classMeta.extends
             .map(name => {
+            // TODO, it may be possible to extend from other things besides
+            // a @class. We should provide a way to get any of those things
+            // by name, more generic than the docsMeta.classes map.
             const parent = docsMeta.classes.get(name);
+            // TODO not all classes are in the docsMeta at this point. Why?
             if (!parent)
                 return name;
+            // TODO handle the extension (f.e. ".ts") generically
             const link = path.relative(path.dirname(classMeta.file), parent.file.replace(/\.ts$/, '.md'));
             return `[${name}](${link})`;
         })
             .join(', ');
         const properties = Object.entries(classMeta.properties);
         const methods = Object.entries(classMeta.methods);
+        // TODO, the Docsify-specific :id=foo stuff should be an extension,
+        // while the base should have generic Markdown only.
         return `
 # <code>class <b>${className}</b>${parents ? ' extends ' + parents : ''}</code> :id=${className}
 
@@ -508,7 +667,9 @@ ${propertyMeta.description}
         return `
 ### <code>.<b>${methodName}</b>(): ${ret}</code> :id=${methodName}
 
-${methodMeta.description}
+${methodMeta.description
+        // TODO handle methodMeta.params, etc
+        }
         `;
     }
 }
