@@ -1,8 +1,8 @@
 declare const FileScanner_base: (new (...a: any[]) => {
+    "__#1@#eventMap": Map<string, Set<[Function, any]>> | null;
     on(eventName: string, callback: Function, context?: any): void;
-    off(eventName: string, callback?: Function | undefined, context?: any): void;
+    off(eventName: string, callback?: Function, context?: any): void;
     emit(eventName: string, data?: any): void;
-    "__#1@#eventMap": Map<string, [Function, any][]> | null;
 }) & (new (...a: any[]) => object);
 /**
  * @class FileScanner - Scans files for JSDoc-style comments, outputting usable
