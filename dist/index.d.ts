@@ -1,10 +1,15 @@
-import { Observable } from './Observable.js';
+declare const FileScanner_base: (new (...a: any[]) => {
+    "__#1@#eventMap": Map<string, Set<[Function, any]>> | null;
+    on(eventName: string, callback: Function, context?: any): void;
+    off(eventName: string, callback?: Function, context?: any): void;
+    emit(eventName: string, data?: any): void;
+}) & (new (...a: any[]) => object);
 /**
  * @class FileScanner - Scans files for JSDoc-style comments, outputting usable
  * objects representing the found tags.
- * @extends Observable
+ * @extends Eventful
  */
-export declare class FileScanner extends Observable {
+export declare class FileScanner extends FileScanner_base {
     /**
      * @method scanFile - Scans a file and triggers the 'comment' for each comment
      * that the scanner parsers while scanning the file.

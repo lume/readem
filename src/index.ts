@@ -3,15 +3,14 @@ import * as path from 'path'
 import walker from 'at-at'
 import mkdirp from 'mkdirp'
 import jsdocTypeParse from 'jsdoctypeparser'
-// TODO, import Observable from a separate package linked by Rush.js
-import {Observable} from './Observable.js'
+import {Eventful} from '@lume/eventful'
 
 /**
  * @class FileScanner - Scans files for JSDoc-style comments, outputting usable
  * objects representing the found tags.
- * @extends Observable
+ * @extends Eventful
  */
-export class FileScanner extends Observable {
+export class FileScanner extends Eventful() {
 	/**
 	 * @method scanFile - Scans a file and triggers the 'comment' for each comment
 	 * that the scanner parsers while scanning the file.
