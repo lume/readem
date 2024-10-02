@@ -1,6 +1,6 @@
 {
 	"name": "readem",
-	"version": "0.2.14",
+	"version": "0.2.15",
 	"description": "Read the !@#$%^& docs!",
 	"type": "module",
 	"main": "dist/index.js",
