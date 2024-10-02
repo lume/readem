@@ -41,7 +41,7 @@ export class FileScanner extends Eventful() {
 			}
 
 			// strip the leading stars, if any
-			const commentContent = commentMatch[1].replace(leadingStarsRegex, '')
+			const commentContent = commentMatch[1]!.replace(leadingStarsRegex, '')
 
 			const re = jsDocTagRegex
 			let tagMatch: ReturnType<typeof re.exec>
@@ -59,7 +59,7 @@ export class FileScanner extends Eventful() {
 
 				comment.content.push({
 					source: tagMatch[0],
-					tag: tagMatch[1],
+					tag: tagMatch[1]!,
 					type: type || undefined,
 					name: tagMatch[3],
 					description: (tagMatch[4] && tagMatch[4].trim()) || undefined,
@@ -911,7 +911,7 @@ export class MarkdownRenderer {
 			const relative = path.relative(docsMeta.sourceFolder, classMeta.file)
 			// the top-level folder
 			// TODO this doesn't handle files in the folder.
-			const section = relative.split(path.sep)[0]
+			const section = relative.split(path.sep)[0]!
 
 			if (!structure[section]) structure[section] = []
 
@@ -925,7 +925,7 @@ export class MarkdownRenderer {
 		for (const section in structure) {
 			result += `${linePadStart}- ${section}/\n`
 
-			for (const classMeta of structure[section]) {
+			for (const classMeta of structure[section]!) {
 				relativePath = path.relative(docsMeta.sourceFolder, classMeta.file.replace(/\.ts$/, '.md'))
 				result += `${linePadStart}  - [${classMeta.name}](${path.join(outputBasePath, relativePath)})\n`
 			}
