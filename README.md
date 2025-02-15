@@ -1,4 +1,4 @@
-![Image](https://github.com/user-attachments/assets/fe8febdf-c2e6-41cd-83fd-dbbc7197d785)
+![Image](https://github.com/user-attachments/assets/62980e7b-db34-45a4-9f1c-8a085c79da5d)
 
 Read the !@#\$%^& docs!
 
